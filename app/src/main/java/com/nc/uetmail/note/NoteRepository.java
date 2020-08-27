@@ -28,7 +28,7 @@ public class NoteRepository {
         new UpdateNoteAsync(noteDao, ACTION.DELETE).execute(note);
     }
     public void deleteAllNotes(){
-        new UpdateNoteAsync(noteDao, ACTION.DELETE).execute(
+        new UpdateNoteAsync(noteDao, ACTION.DELETE_ALL).execute(
                 new Note("","",0)
         );
     }
