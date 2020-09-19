@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,7 +23,7 @@ import com.nc.uetmail.R;
 
 import java.util.List;
 
-import com.nc.uetmail.utils.RecyclerViewSwipeDecorator;
+import com.nc.uetmail.main.utils.RecyclerViewSwipeDecorator;
 
 public class NoteActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQ = 1;
@@ -138,7 +137,10 @@ public class NoteActivity extends AppCompatActivity {
             new RecyclerViewSwipeDecorator
                 .Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                 .addBackgroundColor(ContextCompat.getColor(NoteActivity.this, R.color.colorAccent))
-                .addActionIcon(R.drawable.ic_close)
+                .addSwipeLeftActionIcon(R.drawable.ic_add)
+                .setSwipeLeftLabelColor(ContextCompat.getColor(NoteActivity.this, R.color.colorWhite))
+                .addSwipeLeftLabel("Add")
+//                .addActionIcon(R.drawable.ic_close)
                 .create()
                 .decorate();
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

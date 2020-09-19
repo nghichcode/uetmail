@@ -1,4 +1,4 @@
-package com.nc.uetmail.adapters;
+package com.nc.uetmail.main.adapters;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -6,7 +6,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
-import com.nc.uetmail.models.Product;
+import com.nc.uetmail.main.models.Product;
 
 import java.util.ArrayList;
 

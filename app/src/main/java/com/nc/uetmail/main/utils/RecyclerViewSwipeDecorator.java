@@ -1,4 +1,4 @@
-package com.nc.uetmail.utils;
+package com.nc.uetmail.main.utils;
 
 import android.content.Context;
 import android.graphics.Canvas;

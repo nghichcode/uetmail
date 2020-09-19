@@ -1,4 +1,4 @@
-package com.nc.uetmail.broadcast_receiver;
+package com.nc.uetmail.main.broadcast_receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

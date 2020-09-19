@@ -22,9 +22,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.nc.uetmail.adapters.MailRAdapter;
-import com.nc.uetmail.models.Product;
-import com.nc.uetmail.adapters.ListMailAdapter;
+import com.nc.uetmail.main.adapters.MailRAdapter;
+import com.nc.uetmail.main.models.Product;
+import com.nc.uetmail.main.adapters.ListMailAdapter;
 
 import java.util.ArrayList;
 
