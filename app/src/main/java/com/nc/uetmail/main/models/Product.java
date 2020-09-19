@@ -1,4 +1,4 @@
-package com.nc.uetmail.models;
+package com.nc.uetmail.main.models;
 
 public class Product {
     String name;
