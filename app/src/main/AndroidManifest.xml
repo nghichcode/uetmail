@@ -9,19 +9,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".note.AddNoteActivity"
-            android:parentActivityName=".note.NoteActivity"></activity>
+        <!-- <activity android:name=".mail.view.LoginActivity"></activity> -->
         <activity
-            android:launchMode="singleTop"
-            android:name=".mail.view.MessageActivity"
+            android:name=".note.AddNoteActivity"
+            android:parentActivityName=".note.NoteActivity" />
+        <activity
+            android:name=".mail.view.HomeActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- <activity -->
+        </activity>
+        <activity android:name=".mail.view.ConfigMailActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
+        <!-- <activity -->
         <!-- android:name=".MainActivity" -->
         <!-- android:label="@string/app_name" -->
         <!-- android:theme="@style/AppTheme.NoActionBar"> -->

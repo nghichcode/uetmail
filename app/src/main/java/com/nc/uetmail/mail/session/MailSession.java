@@ -9,22 +9,24 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import com.nc.uetmail.mail.session.MailObject.ConnectionType;
+import com.nc.uetmail.mail.database.models.UserModel;
+import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
+import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
 
 public class MailSession {
     private static MailSession instance;
 
-    private MailObject inbox;
-    private MailObject outbox;
+    private UserModel inbox;
+    private UserModel outbox;
     
     private Session session;
     private Store store;
 
-    public MailObject getInbox() {
+    public UserModel getInbox() {
         return inbox;
     }
 
-    public MailObject getOutbox() {
+    public UserModel getOutbox() {
         return outbox;
     }
 
@@ -36,27 +38,27 @@ public class MailSession {
         return this.store;
     }
 
-    private MailSession(final MailObject inbox, MailObject outbox) throws Exception {
+    private MailSession(final UserModel inbox, UserModel outbox) throws Exception {
         this.inbox = inbox;
         this.outbox = outbox;
 
         Authenticator auth = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(inbox.getUser(), inbox.getPass());
+                return new PasswordAuthentication(inbox.user, inbox.pass);
             }
         };
 
         Properties props = new Properties();
-        String inProtocol = inbox.getProtocol();
-        String ouProtocol = outbox.getProtocol();
+        String inProtocol = MailProtocol.valueOf(inbox.protocol).name;
+        String ouProtocol = MailProtocol.valueOf(outbox.protocol).name;
         props.put("mail.store.protocol", inProtocol);
 
         props.put(String.format("mail.%s.auth", inProtocol), "true");
-        props.put(String.format("mail.%s.host", inProtocol), inbox.getHostname());
-        props.put(String.format("mail.%s.port", inProtocol), String.valueOf(inbox.getPort()));
-        if (inbox.getType() == ConnectionType.StartTLS.getName() || inbox.getType() == ConnectionType.SSL.getName()) {
-            if (inbox.getType() == ConnectionType.StartTLS.getName()) {
+        props.put(String.format("mail.%s.host", inProtocol), inbox.hostname);
+        props.put(String.format("mail.%s.port", inProtocol), String.valueOf(inbox.port));
+        if ( ConnectionType.StartTLS.eq(inbox.type) || ConnectionType.SSL.eq(inbox.type)) {
+            if (ConnectionType.StartTLS.eq(inbox.type)) {
                 props.put(String.format("mail.%s.starttls.enable", inProtocol), "true");
             } else {
                 props.put(String.format("mail.%s.ssl.enable", inProtocol), "true");
@@ -64,14 +66,14 @@ public class MailSession {
 
             props.setProperty(String.format("mail.%s.socketFactory.class", inProtocol), "javax.net.ssl.SSLSocketFactory");
             props.setProperty(String.format("mail.%s.socketFactory.fallback", inProtocol), "false");
-            props.setProperty(String.format("mail.%s.socketFactory.port", inProtocol), String.valueOf(inbox.getPort()));
+            props.setProperty(String.format("mail.%s.socketFactory.port", inProtocol), String.valueOf(inbox.port));
         }
 
         props.put(String.format("mail.%s.auth", ouProtocol), "true");
-        props.put(String.format("mail.%s.host", ouProtocol), outbox.getHostname());
-        props.put(String.format("mail.%s.port", ouProtocol), String.valueOf(outbox.getPort()));
-        if (outbox.getType() == ConnectionType.StartTLS.getName() || outbox.getType() == ConnectionType.SSL.getName()) {
-            if (outbox.getType() == ConnectionType.StartTLS.getName()) {
+        props.put(String.format("mail.%s.host", ouProtocol), outbox.hostname);
+        props.put(String.format("mail.%s.port", ouProtocol), String.valueOf(outbox.port));
+        if (ConnectionType.StartTLS.eq(outbox.type) || ConnectionType.SSL.eq(outbox.type)) {
+            if (ConnectionType.StartTLS.eq(outbox.type)) {
                 props.put(String.format("mail.%s.starttls.enable", ouProtocol), "true");
             } else {
                 props.put(String.format("mail.%s.ssl.enable", ouProtocol), "true");
@@ -89,18 +91,18 @@ public class MailSession {
         }
     }
 
-    public static MailSession getInstance(MailObject inbox, MailObject outbox) throws Exception {
-        if(!inbox.isValid()) {return null;}
-        if(outbox.getUser()==null || outbox.getUser()=="") {
-            outbox.setUser(inbox.getUser());
+    public static MailSession getInstance(UserModel inbox, UserModel outbox) throws Exception {
+        if(!inbox.validate().isEmpty()) {return null;}
+        if(outbox.user==null || outbox.user=="") {
+            outbox.user=inbox.user;
         }
-        if(outbox.getEmail()==null || outbox.getEmail()=="") {
-            outbox.setEmail(inbox.getEmail());
+        if(outbox.email==null || outbox.email=="") {
+            outbox.email=inbox.email;
         }
-        if(outbox.getPass()==null || outbox.getPass()=="") {
-            outbox.setPass(inbox.getPass());
+        if(outbox.pass==null || outbox.pass=="") {
+            outbox.pass=inbox.pass;
         }
-        if(!outbox.isValid()) {return null;}
+        if(!outbox.validate().isEmpty()) {return null;}
 
         if (instance==null){
             instance = new MailSession(inbox, outbox);

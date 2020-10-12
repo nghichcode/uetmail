@@ -17,4 +17,57 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="MailComponents" />
+
+    <style name="MailComponents.BtnInputTransparent" parent="MailComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginLeft">@dimen/size_6</item>
+        <item name="android:layout_marginRight">@dimen/size_6</item>
+        <item name="android:background">@color/colorWarningDisabled</item>
+    </style>
+
+    <style name="MailComponents.BtnSuccess">
+        <item name="android:background">@drawable/mail_btn_rounded_success</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnDanger">
+        <item name="android:background">@drawable/mail_btn_rounded_danger</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnWarning">
+        <item name="android:background">@drawable/mail_btn_rounded_warning</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnInfo">
+        <item name="android:background">@drawable/mail_btn_rounded_info</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout" />
+
+    <style name="MailComponents.TextInputLayout.Parent">
+        <item name="android:layout_marginTop">@dimen/size_6</item>
+        <item name="android:layout_marginLeft">@dimen/size_6</item>
+        <item name="android:layout_marginRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.Label">
+        <item name="android:background">@drawable/mail_badge_rounded_success</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:paddingLeft">@dimen/size_6</item>
+        <item name="android:paddingRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginTop">@dimen/size_10</item>
+        <item name="android:paddingLeft">@dimen/size_12</item>
+        <item name="android:paddingRight">@dimen/size_12</item>
+        <item name="android:paddingTop">@dimen/size_12</item>
+        <item name="android:paddingBottom">@dimen/size_12</item>
+    </style>
+    <style name="MailComponents.TextInputLayout.OutlinedBox.Disabled">
+        <item name="android:background">@color/colorDisabled</item>
+    </style>
 </resources>

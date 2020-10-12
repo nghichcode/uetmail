@@ -1,18 +1,23 @@
-package com.nc.uetmail.mail.components;
+package com.nc.uetmail.mail.session.components;
 
+import com.nc.uetmail.mail.database.models.MailModel;
 import com.sun.mail.imap.IMAPFolder;
 
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-import java.util.Arrays;
+
 import java.util.Date;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 public class MailMessage {
     private Message message;
+    private MailModel mailModel;
+
+    public MailModel getMailModel() {
+        return this.mailModel;
+    }
 
     public MailMessage(IMAPFolder imapFolder, Message message) throws MessagingException {
         this.message = message;
@@ -26,11 +31,11 @@ public class MailMessage {
                     : ((InternetAddress)address).getPersonal();
             }
         }
-        HashMap<String, String> mCC = new HashMap<>();
+        HashMap<String, String> mCCMap = new HashMap<>();
         Address[] mrCC = message.getRecipients(Message.RecipientType.CC);
         if (mrCC!=null) {
             for (Address address : mrCC) {
-                mCC.put(
+                mCCMap.put(
                     ((InternetAddress) address).getAddress(),
                     ((InternetAddress) address).getPersonal()
                 );
@@ -41,17 +46,27 @@ public class MailMessage {
         Date mSentDate = message.getSentDate();
         Date mReceivedDate = message.getReceivedDate();
 
-
-        System.out.println("NCMessageObject{" +
-            "mUid=" + mUid +
-            ",mFrom=" + mFrom +
-            ",mSubject=" + mSubject +
-            ",mFlags=" + mFrom +
-            ",mFlagsCode=" + mFlagsCode +
-            ",mSentDate=" + mSentDate +
-            ",mReceivedDate=" + mReceivedDate +
-        "}");
-
+        String mTo ="";
+        String mCC ="";
+        String mBCC ="";
+        String mTxt ="";
+        String mHtml ="";
+        boolean mHasAttachment =false;
+        boolean mHasHtmlSource =false;
+        this.mailModel = new MailModel(
+            -1, -1, mUid, mSubject, mFrom, mTo , mCC, mBCC,
+            mTxt, mHtml, mHasAttachment, mHasHtmlSource, mFlagsCode, mSentDate, mReceivedDate,
+            true
+        );
+//        Log.i( "ToStr","NCMessageObject{" +
+//            "mUid=" + mUid +
+//            ",mFrom=" + mFrom +
+//            ",mSubject=" + mSubject +
+//            ",mFlags=" + mFrom +
+//            ",mFlagsCode=" + mFlagsCode +
+//            ",mSentDate=" + mSentDate +
+//            ",mReceivedDate=" + mReceivedDate +
+//        "}");
     }
 
 }

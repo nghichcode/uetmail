@@ -9,13 +9,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
-import com.nc.uetmail.mail.database.models.MessageModel;
+import com.nc.uetmail.mail.database.models.MailModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageHolder> {
-    private List<MessageModel> messages = new ArrayList<>();
+    private List<MailModel> messages = new ArrayList<>();
     private OnItemClickListener listener;
 
     class MessageHolder extends RecyclerView.ViewHolder {
@@ -29,15 +29,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageH
             tvContentTxt = itemView.findViewById(R.id.tv_description);
             tvSentDate = itemView.findViewById(R.id.tv_priority);
 
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    int pos = getAdapterPosition();
-//                    if (listener!=null && pos!=RecyclerView.NO_POSITION){
-//                        listener.onItemClick(messages.get(pos));
-//                    }
-//                }
-//            });
         }
     }
 
@@ -51,10 +42,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageH
 
     @Override
     public void onBindViewHolder(@NonNull MessageHolder noteHolder, int i) {
-        MessageModel currentMessage = messages.get(i);
-        noteHolder.tvSubject.setText(currentMessage.getM_subject());
-        noteHolder.tvContentTxt.setText(currentMessage.getM_content_txt());
-        noteHolder.tvSentDate.setText(String.valueOf(currentMessage.getM_sent_date()));
+        MailModel currentMessage = messages.get(i);
+        noteHolder.tvSubject.setText(currentMessage.mail_subject);
+        noteHolder.tvContentTxt.setText(currentMessage.mail_content_txt);
+        noteHolder.tvSentDate.setText(String.valueOf(currentMessage.mail_sent_date));
     }
 
     @Override
@@ -67,17 +58,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageH
         return messages.size();
     }
 
-    public void setMessages(final List<MessageModel> messages) {
+    public void setMessages(final List<MailModel> messages) {
         this.messages = messages;
         notifyDataSetChanged();
     }
 
-    public MessageModel getMessageAt(int position){
+    public MailModel getMessageAt(int position){
         return messages.get(position);
     }
 
     public interface OnItemClickListener {
-        void onItemClick(MessageModel note);
+        void onItemClick(MailModel note);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

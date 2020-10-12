@@ -7,22 +7,22 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
-import com.nc.uetmail.mail.database.models.MessageModel;
+import com.nc.uetmail.mail.database.models.AttachmentModel;
 
 import java.util.List;
 
 @Dao
-public interface MessageDao {
+public interface AttachmentDao {
     @Insert
-    void insert(MessageModel note);
+    void insert(AttachmentModel attachmentModel);
 
     @Update
-    void update(MessageModel note);
+    void update(AttachmentModel attachmentModel);
 
     @Delete
-    void delete(MessageModel note);
+    void delete(AttachmentModel attachmentModel);
 
-    @Query("SELECT * FROM mail_message_table")
-    LiveData<List<MessageModel>> getAll();
+    @Query("SELECT * FROM mail_attachment_table")
+    LiveData<List<AttachmentModel>> getAll();
 
 }

@@ -18,7 +18,8 @@ import android.widget.Toast;
 
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.adapters.MessageAdapter;
-import com.nc.uetmail.mail.database.models.MessageModel;
+import com.nc.uetmail.mail.async.SyncMail;
+import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.viewmodel.MessageViewModel;
 import com.nc.uetmail.main.utils.RecyclerViewSwipeDecorator;
 
@@ -42,13 +43,14 @@ public class MessageActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         messageViewModel = ViewModelProviders.of(this).get(MessageViewModel.class);
-        messageViewModel.getAllMessages().observe(this, new Observer<List<MessageModel>>() {
+        messageViewModel.getAllMessages().observe(this, new Observer<List<MailModel>>() {
             @Override
-            public void onChanged(@Nullable List<MessageModel> messageModels) {
-                adapter.setMessages(messageModels);
+            public void onChanged(@Nullable List<MailModel> mailModels) {
+                adapter.setMessages(mailModels);
             }
         });
 
+//        new SyncMail(this).execute();
     }
 
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {

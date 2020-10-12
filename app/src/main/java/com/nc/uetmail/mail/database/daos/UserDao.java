@@ -14,15 +14,21 @@ import java.util.List;
 @Dao
 public interface UserDao {
     @Insert
-    void insert(UserModel note);
+    long insert(UserModel userModel);
 
     @Update
-    void update(UserModel note);
+    void update(UserModel userModel);
 
     @Delete
-    void delete(UserModel note);
+    void delete(UserModel userModel);
+
+    @Query("SELECT * FROM mail_user_table WHERE id=:id")
+    UserModel getUserModelById(int id);
 
     @Query("SELECT * FROM mail_user_table")
     LiveData<List<UserModel>> getAll();
+
+    @Query("DELETE FROM mail_user_table WHERE 1")
+    void deleteAll();
 
 }

@@ -1,5 +1,7 @@
-package com.nc.uetmail.mail.components;
+package com.nc.uetmail.mail.session.components;
 
+import com.nc.uetmail.mail.database.models.FolderModel;
+import com.nc.uetmail.mail.database.models.FolderModel.FolderType;
 import com.sun.mail.imap.IMAPFolder;
 
 import javax.mail.Folder;
@@ -13,6 +15,10 @@ public class MailFolder {
 
     private ArrayList<MailFolder> childrenFolders;
     private ArrayList<MailMessage> messages;
+
+    public boolean isRoot() {
+        return this.isRoot;
+    }
 
     public ArrayList<MailFolder> getChildrenFolders() throws MessagingException {
         if (childrenFolders == null) {
@@ -30,9 +36,9 @@ public class MailFolder {
             this.messages = new ArrayList<>();
             if (isRoot){ return messages; }
             folder.open(Folder.READ_ONLY);
-            Message[] messages = folder.getMessages();
-            for (int i = 0; i < messages.length; i++) {
-                this.messages.add(new MailMessage((IMAPFolder) folder, messages[i]));
+            Message[] folderMessages = folder.getMessages();
+            for (int i = 0; i < folderMessages.length; i++) {
+                this.messages.add(new MailMessage((IMAPFolder) folder, folderMessages[i]));
             }
             folder.close();
         }
@@ -42,6 +48,13 @@ public class MailFolder {
     public MailFolder(Folder folder) {
         this.folder=folder;
         if (folder.getName()==""){ isRoot=true; }
+    }
+
+    public FolderModel toFolderModel() throws MessagingException {
+        return new FolderModel(
+            -1, FolderType.OTHER.name(), folder.getName(), folder.getFullName(),
+            "", folder.getUnreadMessageCount(), folder.getMessageCount(), true, -1
+        );
     }
 
     @Override
