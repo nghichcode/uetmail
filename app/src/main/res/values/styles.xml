@@ -15,6 +15,124 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="MailTheme" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="MailTheme.Danger">
+        <item name="android:actionBarStyle">@style/MailStyle.Danger</item>
+    </style>
+
+    <style name="MailStyle" />
+
+    <style name="MailStyle.Danger">
+        <item name="background">@color/colorDanger</item>
+    </style>
+
+    <style name="MailComponents" />
+
+    <style name="MailComponents.BtnInputTransparent" parent="MailComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginLeft">@dimen/size_6</item>
+        <item name="android:layout_marginRight">@dimen/size_6</item>
+        <item name="android:background">@color/colorWarningDisabled</item>
+    </style>
+
+    <style name="MailComponents.BtnSuccess">
+        <item name="android:background">@drawable/mail_btn_rounded_success</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnDanger">
+        <item name="android:background">@drawable/mail_btn_rounded_danger</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnWarning">
+        <item name="android:background">@drawable/mail_btn_rounded_warning</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.BtnInfo">
+        <item name="android:background">@drawable/mail_btn_rounded_info</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.RowBody">
+        <item name="android:layout_marginLeft">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextWhite">
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.TextLetter">
+        <item name="android:textSize">@dimen/size_30</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="MailComponents.AlignTopRight">
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_marginRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout" />
+
+    <style name="MailComponents.TextInputLayout.Parent">
+        <item name="android:layout_marginTop">@dimen/size_6</item>
+        <item name="android:layout_marginLeft">@dimen/size_6</item>
+        <item name="android:layout_marginRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.Label">
+        <item name="android:background">@drawable/mail_badge_rounded_success</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:paddingLeft">@dimen/size_6</item>
+        <item name="android:paddingRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginTop">@dimen/size_10</item>
+        <item name="android:paddingLeft">@dimen/size_12</item>
+        <item name="android:paddingRight">@dimen/size_12</item>
+        <item name="android:paddingTop">@dimen/size_12</item>
+        <item name="android:paddingBottom">@dimen/size_12</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.OutlinedBox.TextTopLeft">
+        <item name="android:gravity">start|top</item>
+    </style>
+
+    <style name="MailComponents.TextInputMultilines" parent="MailComponents.TextInputLayout.OutlinedBox.TextTopLeft">
+        <item name="android:background">@color/colorTransparent</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.OutlinedBox.Disabled">
+        <item name="android:background">@color/colorDisabled</item>
+    </style>
+
+    <style name="MailComponents.TextInputLayout.OutlinedBox.DangerDisabled">
+        <item name="android:background">@color/colorDangerDisabled</item>
+    </style>
+
+    <style name="MailComponents.TextViewLayout" />
+
+    <style name="MailComponents.TextViewLayout.Box">
+        <item name="android:paddingLeft">@dimen/size_6</item>
+        <item name="android:paddingRight">@dimen/size_6</item>
+        <item name="android:paddingTop">@dimen/size_6</item>
+        <item name="android:paddingBottom">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.TextViewLayout.Box.BgDisabled">
+        <item name="android:background">@color/colorDisabled</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:tint">@color/colorWhite</item>
+    </style>
+
+    <style name="MailComponents.TextViewLayout.Box.TextWhite">
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:tint">@color/colorWhite</item>
+    </style>
 
 </resources>

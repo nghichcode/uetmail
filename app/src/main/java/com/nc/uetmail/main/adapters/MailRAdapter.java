@@ -26,7 +26,7 @@ public class MailRAdapter extends RecyclerView.Adapter<MailRAdapter.MailViewHold
 
     @Override
     public MailViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = mLayoutInflater.inflate(R.layout.row_mail_list, viewGroup, false);
+        View view = mLayoutInflater.inflate(R.layout.mail_home_row_mail, viewGroup, false);
         return new MailViewHolder(view);
     }
 
@@ -50,9 +50,6 @@ public class MailRAdapter extends RecyclerView.Adapter<MailRAdapter.MailViewHold
 
         public MailViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.nameproduct);
-            price = (TextView) itemView.findViewById(R.id.priceproduct);
-            productID = (TextView) itemView.findViewById(R.id.idproduct);
         }
     }
 }

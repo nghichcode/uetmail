@@ -1,213 +1,188 @@
 package com.nc.uetmail.mail.database.models;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 
-import com.nc.uetmail.mail.converters.DateConverter;
-import com.nc.uetmail.mail.session.MailObject;
-
-import java.util.Date;
+import java.util.HashSet;
 
 @Entity(tableName = "mail_user_table")
-public class UserModel {
-    public void setId(final int id) {
-        this.id = id;
+public class UserModel extends BaseTimeModel {
+    public enum MailProtocol {
+        SMTP((byte) 1, "smtp"), POP3((byte) 3, "pop3"), IMAP((byte) 5, "imap");
+
+        public final byte id;
+        public final String name;
+
+        MailProtocol(byte id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public boolean eq(String str) {
+            return name() == str;
+        }
+    }
+
+    public enum ConnectionType {
+        AUTH((byte) 6, "None"), SSL((byte) 8, "Secure (SSL)"), StartTLS((byte) 9, "Secure (TLS)");
+
+        public final byte id;
+        public final String name;
+
+        ConnectionType(byte id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public boolean eq(String str) {
+            return name() == str;
+        }
+    }
+
+    public enum DefaultPort {
+        INB_AUTH(143), INB_SSL(993), INB_StartTLS(993),
+        OUB_AUTH(25), OUB_SSL(465), OUB_StartTLS(587);
+
+        public final int port;
+
+        DefaultPort(final int port) {
+            this.port = port;
+        }
     }
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    public int id;
 
-    private String email;
+    public String protocol;
 
-    private String in_protocol;
-    private String in_type;
-    private String in_user;
-    private String in_pass;
-    private String in_hostname;
-    private Integer in_port;
+    public String email;
+    public String user;
+    public String pass;
+    public String hostname;
+    public String type;
+    public Integer port;
 
-    private String ou_protocol;
-    private String ou_type;
-    private String ou_user;
-    private String ou_pass;
-    private String ou_hostname;
-    private Integer ou_port;
+    public String iv;
+    public boolean sync;
+    public boolean incoming;
 
-    @TypeConverters({DateConverter.class})
-    private Date created_at;
-    @TypeConverters({DateConverter.class})
-    private Date updated_at;
+    public int target_id;
+    public boolean valid_user;
 
-    public int getId() {
-        return this.id;
+    @Ignore
+    public UserModel() {
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
+    @Ignore
+    public UserModel(final String protocol, final String email, final String user,
+                     final String pass, final String hostname, final String type,
+                     final Integer port, final String iv, final boolean sync,
+                     final boolean incoming, final int target_id) {
+        this.protocol = protocol;
         this.email = email;
+        this.user = user;
+        this.pass = pass;
+        this.hostname = hostname;
+        this.type = type;
+        this.port = port;
+        this.iv = iv;
+        this.sync = sync;
+        this.incoming = incoming;
+        this.target_id = target_id;
+        this.valid_user = false;
     }
 
-    public String getIn_protocol() {
-        return in_protocol;
-    }
-
-    public void setIn_protocol(String in_protocol) {
-        this.in_protocol = in_protocol;
-    }
-
-    public String getIn_type() {
-        return in_type;
-    }
-
-    public void setIn_type(String in_type) {
-        this.in_type = in_type;
-    }
-
-    public String getIn_user() {
-        return in_user;
-    }
-
-    public void setIn_user(String in_user) {
-        this.in_user = in_user;
-    }
-
-    public String getIn_pass() {
-        return in_pass;
-    }
-
-    public void setIn_pass(String in_pass) {
-        this.in_pass = in_pass;
-    }
-
-    public String getIn_hostname() {
-        return in_hostname;
-    }
-
-    public void setIn_hostname(String in_hostname) {
-        this.in_hostname = in_hostname;
-    }
-
-    public Integer getIn_port() {
-        return in_port;
-    }
-
-    public void setIn_port(Integer in_port) {
-        this.in_port = in_port;
-    }
-
-    public String getOu_protocol() {
-        return ou_protocol;
-    }
-
-    public void setOu_protocol(String ou_protocol) {
-        this.ou_protocol = ou_protocol;
-    }
-
-    public String getOu_type() {
-        return ou_type;
-    }
-
-    public void setOu_type(String ou_type) {
-        this.ou_type = ou_type;
-    }
-
-    public String getOu_user() {
-        return ou_user;
-    }
-
-    public void setOu_user(String ou_user) {
-        this.ou_user = ou_user;
-    }
-
-    public String getOu_pass() {
-        return ou_pass;
-    }
-
-    public void setOu_pass(String ou_pass) {
-        this.ou_pass = ou_pass;
-    }
-
-    public String getOu_hostname() {
-        return ou_hostname;
-    }
-
-    public void setOu_hostname(String ou_hostname) {
-        this.ou_hostname = ou_hostname;
-    }
-
-    public Integer getOu_port() {
-        return ou_port;
-    }
-
-    public void setOu_port(Integer ou_port) {
-        this.ou_port = ou_port;
-    }
-
-    public Date getCreated_at() {
-        return this.created_at;
-    }
-
-    public void setCreated_at(final Date created_at) {
-        this.created_at = created_at;
-    }
-
-    public Date getUpdated_at() {
-        return this.updated_at;
-    }
-
-    public void setUpdated_at(final Date updated_at) {
-        this.updated_at = updated_at;
-    }
-
-    public MailObject getInMailObject() {
-        return new MailObject(in_protocol, in_type, in_user, in_pass, in_hostname, in_port, email);
-    }
-
-    public MailObject getOuMailObject() {
-        return new MailObject(ou_protocol, ou_type, ou_user, ou_pass, ou_hostname, ou_port, email);
-    }
-
-    public UserModel(
-        String email,
-        String in_protocol, String in_type, String in_user, String in_pass, String in_hostname, Integer in_port,
-        String ou_protocol, String ou_type, String ou_user, String ou_pass, String ou_hostname, Integer ou_port
-    ) {
+    public UserModel(final String protocol, final String email, final String user,
+                     final String pass, final String hostname,
+                     final String type, final Integer port, final String iv, final boolean sync,
+                     final boolean incoming,
+                     final int target_id, final boolean valid_user) {
+        this.protocol = protocol;
         this.email = email;
-        this.in_protocol = in_protocol;
-        this.in_type = in_type;
-        this.in_user = in_user;
-        this.in_pass = in_pass;
-        this.in_hostname = in_hostname;
-        this.in_port = in_port;
-        this.ou_protocol = ou_protocol;
-        this.ou_type = ou_type;
-        this.ou_user = ou_user;
-        this.ou_pass = ou_pass;
-        this.ou_hostname = ou_hostname;
-        this.ou_port = ou_port;
+        this.user = user;
+        this.pass = pass;
+        this.hostname = hostname;
+        this.type = type;
+        this.port = port;
+        this.iv = iv;
+        this.sync = sync;
+        this.incoming = incoming;
+        this.target_id = target_id;
+        this.valid_user = valid_user;
+    }
+
+    public static int getDefaultPort(String protocol, String type) {
+        if (MailProtocol.IMAP.eq(protocol) || MailProtocol.POP3.eq(protocol)) {
+            if (ConnectionType.SSL.eq(type)) {
+                return DefaultPort.INB_SSL.port;
+            } else if (ConnectionType.StartTLS.eq(type)) {
+                return DefaultPort.INB_StartTLS.port;
+            } else {
+                return DefaultPort.INB_AUTH.port;
+            }
+        } else {
+            if (ConnectionType.SSL.eq(type)) {
+                return DefaultPort.OUB_SSL.port;
+            } else if (ConnectionType.StartTLS.eq(type)) {
+                return DefaultPort.OUB_StartTLS.port;
+            } else {
+                return DefaultPort.OUB_AUTH.port;
+            }
+        }
+    }
+
+    public String getFirstUserLetter() {
+        return !"".equals(email) ? (email.charAt(0) + "") : "?";
+    }
+
+    @Override
+    protected String[] requireFields() {
+        return new String[]{"protocol", "email", "user", "pass", "hostname", "type", "port", "sync",
+            "incoming"};
+    }
+
+    public HashSet<String> validate() {
+        HashSet<String> errors = super.validate();
+        email = email.toLowerCase();
+        String[] tmpHostname = email.split("@");
+        if (tmpHostname.length == 2) {
+            if (errors.contains("user")) {
+                user = tmpHostname[0];
+                errors.remove("user");
+            }
+            if (errors.contains("hostname")) {
+                hostname = tmpHostname[1];
+                errors.remove("hostname");
+            }
+        }
+        if (errors.contains("type")) {
+            type = ConnectionType.AUTH.name();
+            errors.remove("type");
+        }
+        if (errors.contains("port")) {
+            port = getDefaultPort(protocol, type);
+            errors.remove("port");
+        }
+        return errors;
     }
 
     @Override
     public String toString() {
         return "UserModel{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", in_protocol='" + in_protocol + '\'' +
-                ", in_type='" + in_type + '\'' +
-                ", in_user='" + in_user + '\'' +
-                ", in_pass='" + in_pass + '\'' +
-                ", in_hostname='" + in_hostname + '\'' +
-                ", in_port=" + in_port +
-                ", ou_protocol='" + ou_protocol + '\'' +
-                ", ou_type='" + ou_type + '\'' +
-                ", ou_user='" + ou_user + '\'' +
-                ", ou_pass='" + ou_pass + '\'' +
-                ", ou_hostname='" + ou_hostname + '\'' +
-                ", ou_port=" + ou_port +
-                '}';
+            "id=" + id +
+            ", protocol='" + protocol + '\'' +
+            ", email='" + email + '\'' +
+            ", user='" + user + '\'' +
+            ", pass='" + pass + '\'' +
+            ", hostname='" + hostname + '\'' +
+            ", type='" + type + '\'' +
+            ", port=" + port +
+            ", iv='" + iv + '\'' +
+            ", sync=" + sync +
+            ", incoming=" + incoming +
+            ", created_at=" + created_at +
+            ", updated_at=" + updated_at +
+            '}';
     }
 }

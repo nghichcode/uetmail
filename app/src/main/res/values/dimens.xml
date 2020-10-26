@@ -5,4 +5,17 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="mail_h256">256dp</dimen>
+
+    <dimen name="size_6">6dp</dimen>
+    <dimen name="size_8">8dp</dimen>
+    <dimen name="size_10">10dp</dimen>
+    <dimen name="size_12">12dp</dimen>
+    <dimen name="size_30">30dp</dimen>
+    <dimen name="size_40">40dp</dimen>
+    <dimen name="size_60">60dp</dimen>
+
+    <dimen name="radius_sm">2dp</dimen>
+    <dimen name="border_sm">1dp</dimen>
 </resources>

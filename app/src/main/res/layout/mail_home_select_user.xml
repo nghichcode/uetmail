@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mail_home_select_user_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/size_8"
+        android:layout_weight="1"
+        tools:listitem="@layout/mail_home_row_user" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/size_8"
+        android:layout_marginHorizontal="@dimen/size_8">
+        <Button
+            android:id="@+id/mail_home_add_user_btn"
+            style="@style/MailComponents.BtnInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="toggleAdvanced"
+            android:text="@string/mail_add_user" />
+    </LinearLayout>
+</LinearLayout>
