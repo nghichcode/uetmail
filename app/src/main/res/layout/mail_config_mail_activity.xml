@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="@dimen/size_6"
+    android:layout_marginVertical="@dimen/size_10"
+    tools:context=".mail.view.ConfigMailActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/mail_in_email_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_email_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_email_hint"
+                android:hint="@string/mail_config_email_hint"
+                android:inputType="textEmailAddress" />
+
+            <TextView
+                android:id="@+id/mail_email"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_email_rq" />
+        </RelativeLayout>
+
+        <TextView
+            style="@style/MailComponents.TextInputLayout.OutlinedBox.DangerDisabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/mail_config_inbox"/>
+
+        <RelativeLayout
+            android:id="@+id/mail_in_user_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_in_user_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_user_hint"
+                android:hint="@string/mail_config_user_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_in_user"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_user" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_in_pass_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_in_pass_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_pass_hint"
+                android:hint="@string/mail_config_pass_hint"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/mail_in_pass"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_pass_rq" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_in_host_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_in_host_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_host_hint"
+                android:hint="@string/mail_config_host_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_in_host"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_host" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_in_type_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_in_type_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox.Disabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_type_hint"
+                android:drawableEnd="@drawable/ic_expand_more"
+                android:editable="false"
+                android:focusable="false"
+                android:hint="@string/mail_config_type_hint"
+                android:inputType="none" />
+
+            <TextView
+                android:id="@+id/mail_in_type"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_type" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_in_port_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_in_port_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_port_hint"
+                android:hint="@string/mail_config_port_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_in_port"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_port" />
+        </RelativeLayout>
+
+        <TextView
+            style="@style/MailComponents.TextInputLayout.OutlinedBox.DangerDisabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="@string/mail_config_outbox"/>
+
+        <RelativeLayout
+            android:id="@+id/mail_ou_user_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_ou_user_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_option_hint"
+                android:hint="@string/mail_config_option_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_ou_user"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_user" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_ou_pass_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_ou_pass_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_option_hint"
+                android:hint="@string/mail_config_option_hint"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/mail_ou_pass"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_pass" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_ou_host_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_ou_host_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_host_hint"
+                android:hint="@string/mail_config_host_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_ou_host"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_host" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_ou_type_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_ou_type_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox.Disabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_type_hint"
+                android:drawableEnd="@drawable/ic_expand_more"
+                android:editable="false"
+                android:focusable="false"
+                android:hint="@string/mail_config_type_hint"
+                android:inputType="none" />
+
+            <TextView
+                android:id="@+id/mail_ou_type"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_type" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/mail_ou_port_group"
+            style="@style/MailComponents.TextInputLayout.Parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/mail_ou_port_input"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_config_port_hint"
+                android:hint="@string/mail_config_port_hint"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/mail_ou_port"
+                style="@style/MailComponents.TextInputLayout.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_config_port" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/button"
+            style="@style/MailComponents.BtnInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="toggleAdvanced"
+            android:text="@string/mail_advanced" />
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="@dimen/size_6"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_gravity="center"
+        android:gravity="center|start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/mail_row_user_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/mail_bg_circle_danger"
+            android:contentDescription="@string/mail_letter_a" />
+
+        <TextView
+            android:id="@+id/mail_row_user_icon_letter"
+            style="@style/MailComponents.TextLetter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mail_letter_a" />
+    </RelativeLayout>
+
+    <LinearLayout
+        style="@style/MailComponents.RowBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/mail_row_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mail_row_user"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/mail_row_user_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mail_config_email_hint" />
+    </LinearLayout>
+</LinearLayout>

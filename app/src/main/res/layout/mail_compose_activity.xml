@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".mail.view.ComposeMailActivity"
+    tools:menu="@menu/mail_compose_menu">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/mail_compose_to"
+                style="@style/MailComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/mail_compose_to"
+                android:hint="@string/mail_compose_to"
+                android:inputType="textEmailAddress" />
+            <ImageButton
+                android:id="@+id/mail_compose_expand"
+                android:layout_width="@dimen/size_40"
+                android:layout_height="@dimen/size_40"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/mail_btn_disabled"
+                android:src="@drawable/ic_expand_more"
+                android:contentDescription="@string/mail_expand" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/mail_compose_cc"
+        style="@style/MailComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="@string/mail_compose_cc"
+        android:hint="@string/mail_compose_cc"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/mail_compose_bcc"
+        style="@style/MailComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="@string/mail_compose_bcc"
+        android:hint="@string/mail_compose_bcc"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/mail_compose_subject"
+        style="@style/MailComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="@string/mail_compose_subject"
+        android:hint="@string/mail_compose_subject"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/mail_compose"
+        style="@style/MailComponents.TextInputMultilines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:autofillHints="@string/mail_compose"
+        android:hint="@string/mail_compose"
+        android:inputType="textMultiLine"
+        android:lines="@android:integer/config_shortAnimTime"
+        android:textAlignment="textStart" />
+
+</LinearLayout>
