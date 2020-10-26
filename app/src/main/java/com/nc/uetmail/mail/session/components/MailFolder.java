@@ -7,11 +7,13 @@ import com.sun.mail.imap.IMAPFolder;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 import java.util.ArrayList;
 
 public class MailFolder {
     private boolean isRoot;
     private Folder folder;
+    private FolderModel folderModel;
 
     private ArrayList<MailFolder> childrenFolders;
     private ArrayList<MailMessage> messages;
@@ -31,10 +33,12 @@ public class MailFolder {
         return childrenFolders;
     }
 
-    public ArrayList<MailMessage> getMessages() throws MessagingException {
+    public ArrayList<MailMessage> getMessages() throws Exception {
         if (messages == null) {
             this.messages = new ArrayList<>();
-            if (isRoot){ return messages; }
+            if (isRoot) {
+                return messages;
+            }
             folder.open(Folder.READ_ONLY);
             Message[] folderMessages = folder.getMessages();
             for (int i = 0; i < folderMessages.length; i++) {
@@ -45,25 +49,35 @@ public class MailFolder {
         return messages;
     }
 
-    public MailFolder(Folder folder) {
-        this.folder=folder;
-        if (folder.getName()==""){ isRoot=true; }
+    public MailFolder(Folder folder) throws MessagingException {
+        this.folder = folder;
+        if (folder.getName() == "") {
+            isRoot = true;
+        }
+        int unreadMessageCount = 0;
+        int messageCount = 0;
+        if (!isRoot) {
+            unreadMessageCount = folder.getUnreadMessageCount();
+            messageCount = folder.getMessageCount();
+        }
+        folderModel = new FolderModel(
+            -1, FolderType.OTHER.name(), folder.getName(), folder.getFullName(),
+            "", unreadMessageCount, messageCount, true, -1
+        );
+
     }
 
     public FolderModel toFolderModel() throws MessagingException {
-        return new FolderModel(
-            -1, FolderType.OTHER.name(), folder.getName(), folder.getFullName(),
-            "", folder.getUnreadMessageCount(), folder.getMessageCount(), true, -1
-        );
+        return folderModel;
     }
 
     @Override
     public String toString() {
         return "NCFolderObject{" +
-                "name=" + folder.getName() +
-                ", fullName=" + folder.getFullName() +
-                ", childrenFolders=" + childrenFolders +
-                ", messageObjects=" + messages +
-                '}';
+            "name=" + folder.getName() +
+            ", fullName=" + folder.getFullName() +
+            ", childrenFolders=" + childrenFolders +
+            ", messageObjects=" + messages +
+            '}';
     }
 }

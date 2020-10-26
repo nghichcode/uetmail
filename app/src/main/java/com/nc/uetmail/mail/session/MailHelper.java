@@ -1,5 +1,7 @@
 package com.nc.uetmail.mail.session;
 
+import com.nc.uetmail.mail.database.MailDatabase;
+import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.session.components.MailFolder;
 import com.nc.uetmail.mail.session.components.MailMessage;
 import com.nc.uetmail.mail.database.daos.FolderDao;
@@ -23,13 +25,15 @@ import java.util.List;
 public class MailHelper {
     private MailSession ms;
     private Store store;
+    private MailDatabase database;
 
     public Store getStore() {
         return store;
     }
 
-    public MailHelper(MailSession ms) {
+    public MailHelper(MailSession ms, MailDatabase database) {
         this.ms = ms;
+        this.database = database;
         try {
             store = ms.getSession().getStore();
             store.connect();
@@ -40,10 +44,13 @@ public class MailHelper {
         }
     }
 
-    private void saveMessage(Message message, String folderName) throws Exception {
+    private void saveMessage(Message message, String[] folderTree) throws Exception {
         try {
-            Message[] messageList= {message};
-            Folder folder = store.getFolder(folderName);
+            Message[] messageList = {message};
+            Folder folder = store.getDefaultFolder();
+            for (int i = 0; i < folderTree.length; i++) {
+                folder = folder.getFolder(folderTree[i]);
+            }
             folder.open(Folder.READ_WRITE);
             ((IMAPFolder) folder).appendMessages(messageList);
             folder.close();
@@ -52,28 +59,33 @@ public class MailHelper {
         }
     }
 
-    public void sendMail(String to, String subject, String content) throws Exception {
+    public void sendMail(MailModel mailModel) throws Exception {
         try {
             Message message = new MimeMessage(ms.getSession());
             message.setFrom(new InternetAddress(ms.getInbox().email));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-            message.setSubject(subject);
+            message.setRecipients(Message.RecipientType.TO, MailMessage.getAddressFromString(mailModel.mail_to));
+            message.setRecipients(Message.RecipientType.CC, MailMessage.getAddressFromString(mailModel.mail_cc));
+            message.setRecipients(Message.RecipientType.BCC, MailMessage.getAddressFromString(mailModel.mail_bcc));
+            message.setSubject(mailModel.mail_subject);
             message.setSentDate(new Date());
-            message.setText(content);
+            message.setText(mailModel.mail_content_txt);
             message.setFlag(Flags.Flag.SEEN, true);
             Transport.send(message);
         } catch (MessagingException e) {
             throw new Exception(e.toString());
         }
     }
-    
-    public void replyMail(Message msg, String content, boolean replyAll) throws Exception {
+
+    public void replyMail(MailModel mailModel, Message msg, boolean replyAll) throws Exception {
         try {
-            Message reply = new MimeMessage(ms.getSession());
+            Message reply;
             reply = (MimeMessage) msg.reply(replyAll);
             reply.setFrom(new InternetAddress(ms.getInbox().email));
             reply.setReplyTo(msg.getReplyTo());
-            reply.setText(content);
+            reply.setSubject(mailModel.mail_subject);
+            reply.setSentDate(new Date());
+            reply.setText(mailModel.mail_content_txt);
+            reply.setFlag(Flags.Flag.SEEN, true);
             Transport.send(reply);
         } catch (MessagingException e) {
             throw new Exception(e.toString());
@@ -97,50 +109,49 @@ public class MailHelper {
         }
     }
 
-    public void listFolderAndMessage(
-            FolderDao folderDao, MailDao mailDao, UserModel user
-    ) throws Exception {
+    public void listFolderAndMessage() throws Exception {
         Folder folder = store.getDefaultFolder();
         MailFolder mailFolder = new MailFolder(folder);
         List<FolderModel.FolderType> types = new ArrayList<FolderModel.FolderType>(
-                Arrays.asList(FolderModel.FolderType.values())
+            Arrays.asList(FolderModel.FolderType.values())
         );
-        listFolderAndMessage(folderDao, mailDao, user, mailFolder, -1, types);
+        listFolderAndMessage(mailFolder, -1, types);
     }
 
     public void listFolderAndMessage(
-            FolderDao folderDao, MailDao mailDao, UserModel user,
-            MailFolder mailFolder, int parent_id, List<FolderModel.FolderType> types
+        MailFolder mailFolder, int parent_id, List<FolderModel.FolderType> types
     ) throws Exception {
         int folder_id = -1;
         if (!mailFolder.isRoot()) {
             FolderModel folderModel = mailFolder.toFolderModel();
-            folderModel.user_id = user.id;
+            folderModel.user_id = ms.getInbox().id;
             folderModel.parent_id = parent_id;
             for (int i = 0; i < types.size(); i++) {
                 if (folderModel.name.matches(types.get(i).regx)) {
-                    folderModel.type=types.get(i).name();
-                    folderModel.aliasName=types.get(i).name;
+                    folderModel.type = types.get(i).name();
+                    folderModel.aliasName = types.get(i).name;
                     types.remove(i);
                     break;
                 }
             }
-            folder_id = (int)folderDao.insert(folderModel);
+            folder_id = (int) database.folderDao().insert(folderModel);
 
-            ArrayList<MailModel> mailModels = new ArrayList<>();
-            for (MailMessage ms: mailFolder.getMessages()){
-                MailModel mailModel = ms.getMailModel();
-                mailModel.user_id=user.id;
-                mailModel.folder_id=folder_id;
-                mailModels.add(mailModel);
+            for (MailMessage mailMessage : mailFolder.getMessages()) {
+                MailModel mailModel = mailMessage.getMailModel();
+                mailModel.user_id = ms.getInbox().id;
+                mailModel.folder_id = folder_id;
+                int message_id = (int) database.messageDao().insert(mailModel);
+                for (AttachmentModel attachmentModel : mailMessage.getAttachments()) {
+                    attachmentModel.message_id = message_id;
+                    database.attachmentDao().insert(attachmentModel);
+                }
             }
-            mailDao.insert(mailModels);
         }
 
         ArrayList<MailFolder> childrenFolders = mailFolder.getChildrenFolders();
-        if (childrenFolders!=null){
-            for (MailFolder fo: childrenFolders){
-                listFolderAndMessage(folderDao, mailDao, user, fo, folder_id, types);
+        if (childrenFolders != null) {
+            for (MailFolder fo : childrenFolders) {
+                listFolderAndMessage(fo, folder_id, types);
             }
         }
     }

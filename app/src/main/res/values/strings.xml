@@ -3,7 +3,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_mail_view">mail_view</string>
@@ -17,26 +16,68 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
 
+    <string name="mail_root_dir">uetmail_data</string>
+
     <string name="mail_default_label">Label</string>
     <string name="mail_default_hint">Hint</string>
     <string name="mail_default_btn">This is Button</string>
 
+    <string name="mail_letter_a">A</string>
+    <string name="mail_letter_plus">+</string>
     <string name="mail_advanced">Advanced</string>
     <string name="mail_next">Next</string>
+    <string name="mail_expand">Expand</string>
     <string name="mail_finish">Finish</string>
     <string name="mail_config_inbox">Incoming server</string>
     <string name="mail_config_outbox">Outgoing server</string>
+    <string name="mail_add">Add</string>
+    <string name="mail_sync">Sync</string>
+    <string name="mail_sync_start">Sync Start</string>
+    <string name="mail_sync_finish">Sync Finish</string>
+    <string name="mail_select_user">Select user</string>
+    <string name="mail_add_user">Add user</string>
+    <string name="mail_delete">Delete</string>
+    <string name="mail_edit">Edit</string>
+
+    <string name="mail_deleted">Deleted</string>
+    <string name="mail_archived">Archived</string>
+    <string name="mail_send">Send</string>
+
+    <string name="mail_inbox">Inbox</string>
+    <string name="mail_archive">Archive</string>
+    <string name="mail_drafts">Drafts</string>
+    <string name="mail_sent">Sent</string>
+    <string name="mail_trash">Trash</string>
+    <string name="mail_spam">Spam</string>
+    <string name="mail_other">Other</string>
+
+    <string name="mail_compose">Write some thing...</string>
+    <string name="mail_compose_from">From</string>
+    <string name="mail_compose_to">To</string>
+    <string name="mail_compose_cc">Cc</string>
+    <string name="mail_compose_bcc">Bcc</string>
+    <string name="mail_compose_subject">Subject</string>
+
+    <string name="mail_row_user">NghichCode</string>
+    <string name="mail_row_empty_user">Empty user</string>
+    <string name="mail_row_empty_user_hint">Please add user</string>
+    <string name="mail_row_title">This is sample title</string>
+    <string name="mail_row_body_txt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque volutpat ipsum eget aliquet dapibus. Ut accumsan leo in est veh...</string>
+    <string name="mail_row_date">11:14 16/10</string>
 
     <string name="mail_title_success">Success</string>
-    <string name="mail_title_danger">Danger</string>
+    <string name="mail_title_danger">Error</string>
     <string name="mail_title_warning">Warning</string>
     <string name="mail_title_info">Info</string>
 
     <string name="mail_input_require_invalid">Please enter valid input and require field</string>
+    <string name="mail_invalid_encrypt_password">Password encrypt error</string>
 
-    <string name="mail_config_email">Email *</string>
+    <string name="mail_config_email_rq">Email *</string>
+    <string name="mail_config_email">Email</string>
     <string name="mail_config_user">Username</string>
-    <string name="mail_config_pass">Password *</string>
+    <string name="mail_config_pass_rq">Password *</string>
+    <string name="mail_config_pass">Password</string>
     <string name="mail_config_host">Hostname</string>
     <string name="mail_config_type">Connection Type</string>
     <string name="mail_config_port">Port</string>
@@ -44,6 +85,7 @@
     <string name="mail_config_email_hint">nc@nghichcode.com</string>
     <string name="mail_config_user_hint">nc</string>
     <string name="mail_config_pass_hint">Password</string>
+    <string name="mail_config_option_hint">( Optional )</string>
     <string name="mail_config_host_hint">imap.nghichcode.com</string>
     <string name="mail_config_host_out_hint">smtp.nghichcode.com</string>
     <string name="mail_config_type_hint">None</string>

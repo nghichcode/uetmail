@@ -14,7 +14,7 @@ import java.util.List;
 @Dao
 public interface MailDao {
     @Insert
-    void insert(MailModel mailModel);
+    long insert(MailModel mailModel);
 
     @Insert
     void insert(List<MailModel> mailModels);

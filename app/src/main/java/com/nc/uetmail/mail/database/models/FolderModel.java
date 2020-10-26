@@ -24,6 +24,11 @@ public class FolderModel extends BaseTimeModel {
         public boolean eq(String str) {
             return name() == str;
         }
+
+        public boolean matchType(String str) {
+            if (str == null || str.trim().length() == 0) return false;
+            return str.matches("(?i).*"+regx);
+        }
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -57,18 +62,18 @@ public class FolderModel extends BaseTimeModel {
     @Override
     public String toString() {
         return "FolderModel{" +
-                "id=" + id +
-                ", user_id=" + user_id +
-                ", type=" + type +
-                ", name='" + name + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", aliasName='" + aliasName + '\'' +
-                ", unread_count=" + unread_count +
-                ", message_count=" + message_count +
-                ", sync=" + sync +
-                ", parent_id=" + parent_id +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
-                '}';
+            "id=" + id +
+            ", user_id=" + user_id +
+            ", type=" + type +
+            ", name='" + name + '\'' +
+            ", fullName='" + fullName + '\'' +
+            ", aliasName='" + aliasName + '\'' +
+            ", unread_count=" + unread_count +
+            ", message_count=" + message_count +
+            ", sync=" + sync +
+            ", parent_id=" + parent_id +
+            ", created_at=" + created_at +
+            ", updated_at=" + updated_at +
+            '}';
     }
 }

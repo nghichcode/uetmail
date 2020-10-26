@@ -67,6 +67,9 @@ public class UserModel extends BaseTimeModel {
     public boolean sync;
     public boolean incoming;
 
+    public int target_id;
+    public boolean valid_user;
+
     @Ignore
     public UserModel() {
     }
@@ -74,23 +77,8 @@ public class UserModel extends BaseTimeModel {
     @Ignore
     public UserModel(final String protocol, final String email, final String user,
                      final String pass, final String hostname, final String type,
-                     final Integer port, final String iv, final boolean incoming) {
-        this.protocol = protocol;
-        this.email = email;
-        this.user = user;
-        this.pass = pass;
-        this.hostname = hostname;
-        this.type = type;
-        this.port = port;
-        this.iv = iv;
-        this.sync = true;
-        this.incoming = incoming;
-    }
-
-    public UserModel(final String protocol, final String email, final String user,
-                     final String pass, final String hostname, final String type,
                      final Integer port, final String iv, final boolean sync,
-                     final boolean incoming) {
+                     final boolean incoming, final int target_id) {
         this.protocol = protocol;
         this.email = email;
         this.user = user;
@@ -101,6 +89,27 @@ public class UserModel extends BaseTimeModel {
         this.iv = iv;
         this.sync = sync;
         this.incoming = incoming;
+        this.target_id = target_id;
+        this.valid_user = false;
+    }
+
+    public UserModel(final String protocol, final String email, final String user,
+                     final String pass, final String hostname,
+                     final String type, final Integer port, final String iv, final boolean sync,
+                     final boolean incoming,
+                     final int target_id, final boolean valid_user) {
+        this.protocol = protocol;
+        this.email = email;
+        this.user = user;
+        this.pass = pass;
+        this.hostname = hostname;
+        this.type = type;
+        this.port = port;
+        this.iv = iv;
+        this.sync = sync;
+        this.incoming = incoming;
+        this.target_id = target_id;
+        this.valid_user = valid_user;
     }
 
     public static int getDefaultPort(String protocol, String type) {
@@ -123,19 +132,27 @@ public class UserModel extends BaseTimeModel {
         }
     }
 
+    public String getFirstUserLetter() {
+        return !"".equals(email) ? (email.charAt(0) + "") : "?";
+    }
+
     @Override
     protected String[] requireFields() {
-        return new String[]{"protocol", "email", "pass", "hostname", "type", "port", "sync",
-                "incoming"};
+        return new String[]{"protocol", "email", "user", "pass", "hostname", "type", "port", "sync",
+            "incoming"};
     }
 
     public HashSet<String> validate() {
         HashSet<String> errors = super.validate();
-        if (errors.contains("user")) user = email;
-        if (errors.contains("hostname")) {
-            String[] tmpHostname = email.split("@");
-            if (tmpHostname.length == 2) {
-                hostname = tmpHostname[tmpHostname.length - 1];
+        email = email.toLowerCase();
+        String[] tmpHostname = email.split("@");
+        if (tmpHostname.length == 2) {
+            if (errors.contains("user")) {
+                user = tmpHostname[0];
+                errors.remove("user");
+            }
+            if (errors.contains("hostname")) {
+                hostname = tmpHostname[1];
                 errors.remove("hostname");
             }
         }
@@ -153,19 +170,19 @@ public class UserModel extends BaseTimeModel {
     @Override
     public String toString() {
         return "UserModel{" +
-                "id=" + id +
-                ", protocol='" + protocol + '\'' +
-                ", email='" + email + '\'' +
-                ", user='" + user + '\'' +
-                ", pass='" + pass + '\'' +
-                ", hostname='" + hostname + '\'' +
-                ", type='" + type + '\'' +
-                ", port=" + port +
-                ", iv='" + iv + '\'' +
-                ", sync=" + sync +
-                ", incoming=" + incoming +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
-                '}';
+            "id=" + id +
+            ", protocol='" + protocol + '\'' +
+            ", email='" + email + '\'' +
+            ", user='" + user + '\'' +
+            ", pass='" + pass + '\'' +
+            ", hostname='" + hostname + '\'' +
+            ", type='" + type + '\'' +
+            ", port=" + port +
+            ", iv='" + iv + '\'' +
+            ", sync=" + sync +
+            ", incoming=" + incoming +
+            ", created_at=" + created_at +
+            ", updated_at=" + updated_at +
+            '}';
     }
 }
