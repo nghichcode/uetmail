@@ -29,6 +29,19 @@
 
     <style name="MailComponents" />
 
+    <style name="MailComponents.h1">
+        <item name="android:textSize">32sp</item>
+    </style>
+    <style name="MailComponents.h2">
+        <item name="android:textSize">24sp</item>
+    </style>
+    <style name="MailComponents.h3">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="MailComponents.h4">
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <style name="MailComponents.BtnInputTransparent" parent="MailComponents.TextInputLayout.OutlinedBox">
         <item name="android:layout_marginLeft">@dimen/size_6</item>
         <item name="android:layout_marginRight">@dimen/size_6</item>
@@ -74,6 +87,15 @@
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_marginRight">@dimen/size_6</item>
+    </style>
+
+    <style name="MailComponents.AlignTopRight.DateLabel">
+        <item name="android:paddingTop">@dimen/size_6</item>
+        <item name="android:paddingBottom">@dimen/size_6</item>
+        <item name="android:paddingRight">@dimen/size_10</item>
+        <item name="android:paddingLeft">@dimen/size_10</item>
+        <item name="android:background">@drawable/mail_btn_rounded_danger</item>
+        <item name="android:textColor">@color/colorWhite</item>
     </style>
 
     <style name="MailComponents.TextInputLayout" />
