@@ -1,7 +1,9 @@
 package com.nc.uetmail.mail.view;
 
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +20,8 @@ import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
 import com.nc.uetmail.mail.database.repository.UserRepository;
+
+import java.util.List;
 
 public class ConfigMailActivity extends AppCompatActivity {
 
@@ -103,6 +107,41 @@ public class ConfigMailActivity extends AppCompatActivity {
         });
         edInPort.setText("" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), inbModel.type));
         edOuPort.setText("" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), oubModel.type));
+
+        int iuid = 0;
+        Intent intent = getIntent();
+        if (intent.hasExtra(HomeActivity.EXTRA_CONFIG_UID)) {
+            iuid = intent.getIntExtra(HomeActivity.EXTRA_CONFIG_UID, 0);
+        }
+
+        if (iuid > 0)
+            userRepository.getUsersByIdOrTargetId(iuid).observe(this,
+                new Observer<List<UserModel>>() {
+                    @Override
+                    public void onChanged(@Nullable List<UserModel> userModels) {
+                        if (userModels.size() != 2) return;
+                        UserModel inbModelTmp = userRepository.decryptUser(userModels.get(0));
+                        UserModel oubModelTmp = userRepository.decryptUser(userModels.get(1));
+                        if (inbModelTmp.id != oubModelTmp.target_id) {
+                            inbModel = oubModelTmp;
+                            oubModel = inbModelTmp;
+                        } else {
+                            inbModel = inbModelTmp;
+                            oubModel = oubModelTmp;
+                        }
+                        edMail.setText(inbModel.email);
+                        edInUser.setText(inbModel.user);
+                        edInPass.setText(inbModel.pass);
+                        edInHost.setText(inbModel.hostname);
+                        edInType.setText(inbModel.type);
+                        edInPort.setText(inbModel.port);
+                        edOuUser.setText(oubModel.user);
+                        edOuPass.setText(oubModel.pass);
+                        edOuHost.setText(oubModel.hostname);
+                        edOuType.setText(oubModel.type);
+                        edOuPort.setText(oubModel.port);
+                    }
+                });
     }
 
     @Override

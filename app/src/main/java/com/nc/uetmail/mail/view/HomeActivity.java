@@ -47,13 +47,16 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     public static final String EXTRA_CONFIG_TYPE = "com.nc.uetmail.mail.EXTRA_CONFIG_TYPE";
+    public static final String EXTRA_CONFIG_UID = "com.nc.uetmail.mail.EXTRA_CONFIG_UID";
     public static final int REQUEST_CONFIG = 1;
-    public static final int REQUEST_COMPOSE = 1;
+    public static final int REQUEST_RECONFIG = 2;
+    public static final int REQUEST_COMPOSE = 3;
 
     private MasterViewModel masterViewModel;
     private MailViewModel mailViewModel;
     private UserViewModel userViewModel;
     private MessageRecyclerAdapter messageAdapter;
+    private UserMailRecyclerAdapter userMailAdapter;
 
     private DrawerLayout drawer;
     private TextView tvNavUser;
@@ -120,7 +123,7 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         btnNavUserGroup.setOnClickListener(onClickExpand);
 
         masterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
-        final UserMailRecyclerAdapter userMailAdapter = new UserMailRecyclerAdapter();
+        userMailAdapter = new UserMailRecyclerAdapter();
         userMailAdapter.setOnItemClickListener(new UserMailRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(UserModel model) {
@@ -136,7 +139,7 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         btnAddUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showConfigActivity(v);
+                showConfigActivity(0);
                 if (alertDialog != null) alertDialog.hide();
             }
         });
@@ -169,8 +172,10 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
 
     }
 
-    public void showConfigActivity(View v) {
+    public void showConfigActivity(int uid) {
         Intent configIntent = new Intent(this, ConfigMailActivity.class);
+        if (uid < 0) return;
+        if (uid > 0) configIntent.putExtra(EXTRA_CONFIG_UID, uid);
         startActivityForResult(configIntent, REQUEST_CONFIG);
     }
 
@@ -214,9 +219,11 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             public void onSwiped(@NonNull ViewHolder viewHolder, int swipeDir) {
                 if (swipeDir == ItemTouchHelper.RIGHT) {
                     Toast.makeText(
-                        HomeActivity.this, getResources().getString(R.string.mail_archived),
+                        HomeActivity.this, getResources().getString(R.string.mail_edit),
                         Toast.LENGTH_SHORT
                     ).show();
+                    UserModel u = userMailAdapter.getUserAt(viewHolder.getAdapterPosition());
+                    showConfigActivity(u != null ? u.id : -1);
                 } else {
                     Toast.makeText(
                         HomeActivity.this, getResources().getString(R.string.mail_deleted),
@@ -229,55 +236,6 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             getResources().getString(R.string.mail_edit),
             0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
     }
-
-    ItemTouchHelper.SimpleCallback mailTouchCallback = new ItemTouchHelper.SimpleCallback(
-        0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-    ) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder,
-                              @NonNull ViewHolder viewHolder1) {
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull ViewHolder viewHolder, int swipeDir) {
-            if (swipeDir == ItemTouchHelper.RIGHT) {
-                Toast.makeText(
-                    HomeActivity.this, getResources().getString(R.string.mail_archived),
-                    Toast.LENGTH_SHORT
-                ).show();
-            } else {
-                mailViewModel.delete(messageAdapter.getMessageAt(viewHolder.getAdapterPosition()));
-                Toast.makeText(
-                    HomeActivity.this, getResources().getString(R.string.mail_deleted),
-                    Toast.LENGTH_SHORT
-                ).show();
-            }
-        }
-
-        @Override
-        public void onChildDraw(@NonNull final Canvas c, @NonNull final RecyclerView recyclerView
-            , @NonNull final ViewHolder viewHolder, final float dX, final float dY,
-                                final int actionState, final boolean isCurrentlyActive) {
-            new RecyclerViewSwipeDecorator
-                .Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                .addSwipeLeftBackgroundColor(ContextCompat.getColor(HomeActivity.this,
-                    R.color.colorDanger))
-                .addSwipeLeftLabel(getResources().getString(R.string.mail_delete))
-                .setSwipeLeftLabelColor(
-                    ContextCompat.getColor(HomeActivity.this, R.color.colorWhite)
-                )
-                .addSwipeRightBackgroundColor(ContextCompat.getColor(HomeActivity.this,
-                    R.color.colorSuccess))
-                .addSwipeRightLabel(getResources().getString(R.string.mail_archive))
-                .setSwipeRightLabelColor(
-                    ContextCompat.getColor(HomeActivity.this, R.color.colorWhite)
-                )
-                .create()
-                .decorate();
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
-    };
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
