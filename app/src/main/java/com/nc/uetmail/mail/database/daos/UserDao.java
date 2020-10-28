@@ -31,8 +31,14 @@ public interface UserDao {
     @Query("DELETE FROM mail_user_table WHERE valid_user = 0")
     void deleteInvalidUser();
 
+    @Query("SELECT * FROM mail_user_table WHERE id=:id or target_id=:id LIMIT 2")
+    List<UserModel> getUsersByIdOrTargetId(int id);
+
     @Query("SELECT * FROM mail_user_table WHERE id=:id")
-    UserModel getUserModelById(int id);
+    LiveData<UserModel> getUserById(int id);
+
+    @Query("SELECT * FROM mail_user_table WHERE target_id=:id")
+    LiveData<UserModel> getUserByTargetId(int id);
 
     @Query("SELECT * FROM mail_user_table WHERE incoming=1")
     LiveData<List<UserModel>> getAllUsers();

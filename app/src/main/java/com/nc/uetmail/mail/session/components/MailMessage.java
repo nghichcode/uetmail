@@ -5,9 +5,9 @@ import android.os.Environment;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.utils.crypt.CryptoUtils;
-import com.nc.uetmail.mail.utils.crypt.CryptorAesCbc;
 import com.sun.mail.imap.IMAPBodyPart;
 import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.protocol.BODYSTRUCTURE;
 import com.sun.mail.util.BASE64DecoderStream;
 
 import javax.mail.Address;
@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,11 +96,15 @@ public class MailMessage {
             String path = Environment.getExternalStorageDirectory()
                 + File.separator + "uetmail_data";
             if (new File(path).isDirectory()) new File(path).mkdirs();
+            if (!new File(path).exists()) throw new IOException("Can not make dir.");
             String filePath = path + File.separator + p.getFileName();
             try {
                 new File(filePath).createNewFile();
             } catch (IOException e) {
-                filePath = path + File.separator + CryptoUtils.getRandomNonce(16);
+                BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
+                filePath = path + File.separator
+                    + CryptoUtils.byte2hex(CryptoUtils.getRandomNonce(16))
+                    + "." + bs != null ? bs.subtype : "ext";
             }
             String contentID = ((IMAPBodyPart) p).getContentID();
             attachments.add(new AttachmentModel(

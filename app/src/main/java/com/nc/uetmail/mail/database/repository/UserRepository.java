@@ -105,6 +105,10 @@ public class UserRepository {
 
     }
 
+    public UserModel decryptUser(UserModel model) {
+        return decryptUser(masterDao, model);
+    }
+
     public static UserModel decryptUser(MailMasterDao masterDao, UserModel model) {
         String message_digest = MasterRepository
             .getOrCreateMasterModel(masterDao).message_digest;
@@ -129,6 +133,26 @@ public class UserRepository {
 
     public LiveData<UserModel> getActiveInbUser() {
         return userDao.getActiveInbUserLive();
+    }
+
+    public LiveData<UserModel> getUserById(int id) {
+        return userDao.getUserById(id);
+    }
+
+    public LiveData<UserModel> getUserByTargetId(int id) {
+        return userDao.getUserByTargetId(id);
+    }
+
+    public void handleUsersByIdOrTargetId(
+        final int id, final CallbackWithParamInterface<List<UserModel>> cb
+    ) {
+        new AsyncCallback(new CallbackInterface() {
+            @Override
+            public void call() {
+                List<UserModel> userModels = userDao.getUsersByIdOrTargetId(id);
+                cb.call(userModels);
+            }
+        }).execute();
     }
 
 }

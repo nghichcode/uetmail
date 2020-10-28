@@ -1,7 +1,9 @@
 package com.nc.uetmail.mail.view;
 
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,10 +17,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
+import com.nc.uetmail.mail.async.AsyncTaskWithCallback;
+import com.nc.uetmail.mail.async.AsyncTaskWithCallback.CallbackWithParamInterface;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
 import com.nc.uetmail.mail.database.repository.UserRepository;
+
+import java.util.List;
 
 public class ConfigMailActivity extends AppCompatActivity {
 
@@ -106,10 +112,44 @@ public class ConfigMailActivity extends AppCompatActivity {
                 showTypeMenu(v, false);
             }
         });
-        String inDefaultPort = "" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), inbModel.type);
-        edInPort.setText(inDefaultPort);
-        String ouDefaultPort = "" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), oubModel.type);
-        edOuPort.setText(ouDefaultPort);
+        edInPort.setText("" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), inbModel.type));
+        edOuPort.setText("" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), oubModel.type));
+
+        int iuid = 0;
+        Intent intent = getIntent();
+        if (intent.hasExtra(HomeActivity.EXTRA_CONFIG_UID)) {
+            iuid = intent.getIntExtra(HomeActivity.EXTRA_CONFIG_UID, 0);
+        }
+
+        if (iuid > 0)
+            userRepository.handleUsersByIdOrTargetId(
+                iuid,
+                new CallbackWithParamInterface<List<UserModel>>() {
+                    @Override
+                    public void call(List<UserModel> userModels) {
+                        if (userModels.size() != 2) return;
+                        UserModel inbModelTmp = userRepository.decryptUser(userModels.get(0));
+                        UserModel oubModelTmp = userRepository.decryptUser(userModels.get(1));
+                        if (inbModelTmp.id != oubModelTmp.target_id) {
+                            ConfigMailActivity.this.inbModel = oubModelTmp;
+                            ConfigMailActivity.this.oubModel = inbModelTmp;
+                        } else {
+                            ConfigMailActivity.this.inbModel = inbModelTmp;
+                            ConfigMailActivity.this.oubModel = oubModelTmp;
+                        }
+                        ConfigMailActivity.this.edMail.setText(inbModel.email);
+                        ConfigMailActivity.this.edInUser.setText(inbModel.user);
+                        ConfigMailActivity.this.edInPass.setText(inbModel.pass);
+                        ConfigMailActivity.this.edInHost.setText(inbModel.hostname);
+                        ConfigMailActivity.this.edInType.setText(inbModel.type);
+                        ConfigMailActivity.this.edInPort.setText(inbModel.port);
+                        ConfigMailActivity.this.edOuUser.setText(oubModel.user);
+                        ConfigMailActivity.this.edOuPass.setText(oubModel.pass);
+                        ConfigMailActivity.this.edOuHost.setText(oubModel.hostname);
+                        ConfigMailActivity.this.edOuType.setText(oubModel.type);
+                        ConfigMailActivity.this.edOuPort.setText(oubModel.port);
+                    }
+                });
     }
 
     @Override
@@ -143,17 +183,15 @@ public class ConfigMailActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 for (ConnectionType c : ConnectionType.values()) {
                     if (c.id == item.getItemId()) {
-                        String tmp = "";
                         if (incoming) {
                             edInType.setText(c.name);
-                            tmp += UserModel.getDefaultPort(MailProtocol.IMAP.name(), c.name());
-                            edInPort.setText(tmp);
+                            edInPort.setText("" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), c.name()));
+                            break;
                         } else {
                             edOuType.setText(c.name);
-                            tmp += UserModel.getDefaultPort(MailProtocol.SMTP.name(), c.name());
-                            edOuPort.setText(tmp);
+                            edOuPort.setText("" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), c.name()));
+                            break;
                         }
-                        break;
                     }
                 }
                 return false;

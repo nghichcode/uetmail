@@ -67,7 +67,7 @@ public class UserMailRecyclerAdapter extends RecyclerView.Adapter<UserMailRecycl
         notifyDataSetChanged();
     }
 
-    public UserModel getMessageAt(int position) {
+    public UserModel getUserAt(int position) {
         return users.get(position);
     }
 
