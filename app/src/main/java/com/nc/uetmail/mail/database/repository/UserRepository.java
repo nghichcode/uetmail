@@ -1,7 +1,6 @@
 package com.nc.uetmail.mail.database.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.Query;
 import android.content.Context;
 
 import com.nc.uetmail.mail.database.MailDatabase;
@@ -109,6 +108,7 @@ public class UserRepository {
     public UserModel decryptUser(UserModel model) {
         return decryptUser(masterDao, model);
     }
+
     public static UserModel decryptUser(MailMasterDao masterDao, UserModel model) {
         String message_digest = MasterRepository
             .getOrCreateMasterModel(masterDao).message_digest;
@@ -143,8 +143,16 @@ public class UserRepository {
         return userDao.getUserByTargetId(id);
     }
 
-    public LiveData<List<UserModel>> getUsersByIdOrTargetId(int id) {
-        return userDao.getUsersByIdOrTargetId(id);
+    public void handleUsersByIdOrTargetId(
+        final int id, final CallbackWithParamInterface<List<UserModel>> cb
+    ) {
+        new AsyncCallback(new CallbackInterface() {
+            @Override
+            public void call() {
+                List<UserModel> userModels = userDao.getUsersByIdOrTargetId(id);
+                cb.call(userModels);
+            }
+        }).execute();
     }
 
 }

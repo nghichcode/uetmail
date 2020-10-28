@@ -16,6 +16,8 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 
 import com.nc.uetmail.R;
+import com.nc.uetmail.mail.async.AsyncTaskWithCallback;
+import com.nc.uetmail.mail.async.AsyncTaskWithCallback.CallbackWithParamInterface;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
@@ -115,31 +117,32 @@ public class ConfigMailActivity extends AppCompatActivity {
         }
 
         if (iuid > 0)
-            userRepository.getUsersByIdOrTargetId(iuid).observe(this,
-                new Observer<List<UserModel>>() {
+            userRepository.handleUsersByIdOrTargetId(
+                iuid,
+                new CallbackWithParamInterface<List<UserModel>>() {
                     @Override
-                    public void onChanged(@Nullable List<UserModel> userModels) {
+                    public void call(List<UserModel> userModels) {
                         if (userModels.size() != 2) return;
                         UserModel inbModelTmp = userRepository.decryptUser(userModels.get(0));
                         UserModel oubModelTmp = userRepository.decryptUser(userModels.get(1));
                         if (inbModelTmp.id != oubModelTmp.target_id) {
-                            inbModel = oubModelTmp;
-                            oubModel = inbModelTmp;
+                            ConfigMailActivity.this.inbModel = oubModelTmp;
+                            ConfigMailActivity.this.oubModel = inbModelTmp;
                         } else {
-                            inbModel = inbModelTmp;
-                            oubModel = oubModelTmp;
+                            ConfigMailActivity.this.inbModel = inbModelTmp;
+                            ConfigMailActivity.this.oubModel = oubModelTmp;
                         }
-                        edMail.setText(inbModel.email);
-                        edInUser.setText(inbModel.user);
-                        edInPass.setText(inbModel.pass);
-                        edInHost.setText(inbModel.hostname);
-                        edInType.setText(inbModel.type);
-                        edInPort.setText(inbModel.port);
-                        edOuUser.setText(oubModel.user);
-                        edOuPass.setText(oubModel.pass);
-                        edOuHost.setText(oubModel.hostname);
-                        edOuType.setText(oubModel.type);
-                        edOuPort.setText(oubModel.port);
+                        ConfigMailActivity.this.edMail.setText(inbModel.email);
+                        ConfigMailActivity.this.edInUser.setText(inbModel.user);
+                        ConfigMailActivity.this.edInPass.setText(inbModel.pass);
+                        ConfigMailActivity.this.edInHost.setText(inbModel.hostname);
+                        ConfigMailActivity.this.edInType.setText(inbModel.type);
+                        ConfigMailActivity.this.edInPort.setText(inbModel.port);
+                        ConfigMailActivity.this.edOuUser.setText(oubModel.user);
+                        ConfigMailActivity.this.edOuPass.setText(oubModel.pass);
+                        ConfigMailActivity.this.edOuHost.setText(oubModel.hostname);
+                        ConfigMailActivity.this.edOuType.setText(oubModel.type);
+                        ConfigMailActivity.this.edOuPort.setText(oubModel.port);
                     }
                 });
     }

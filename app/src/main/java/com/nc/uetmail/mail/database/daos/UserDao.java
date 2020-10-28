@@ -32,7 +32,7 @@ public interface UserDao {
     void deleteInvalidUser();
 
     @Query("SELECT * FROM mail_user_table WHERE id=:id or target_id=:id LIMIT 2")
-    LiveData<List<UserModel>> getUsersByIdOrTargetId(int id);
+    List<UserModel> getUsersByIdOrTargetId(int id);
 
     @Query("SELECT * FROM mail_user_table WHERE id=:id")
     LiveData<UserModel> getUserById(int id);
