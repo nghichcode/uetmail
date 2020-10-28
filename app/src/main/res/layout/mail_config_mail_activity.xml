@@ -37,6 +37,7 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/mail_in_label"
             style="@style/MailComponents.TextInputLayout.OutlinedBox.DangerDisabled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,17 +123,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
+            <TextView
                 android:id="@+id/mail_in_type_input"
                 style="@style/MailComponents.TextInputLayout.OutlinedBox.Disabled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/mail_config_type_hint"
                 android:drawableEnd="@drawable/ic_expand_more"
-                android:editable="false"
-                android:focusable="false"
-                android:hint="@string/mail_config_type_hint"
-                android:inputType="none" />
+                android:text="@string/mail_config_type_hint"/>
 
             <TextView
                 android:id="@+id/mail_in_type"
@@ -167,6 +164,7 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/mail_ou_label"
             style="@style/MailComponents.TextInputLayout.OutlinedBox.DangerDisabled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -252,17 +250,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
+            <TextView
                 android:id="@+id/mail_ou_type_input"
                 style="@style/MailComponents.TextInputLayout.OutlinedBox.Disabled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/mail_config_type_hint"
                 android:drawableEnd="@drawable/ic_expand_more"
-                android:editable="false"
-                android:focusable="false"
-                android:hint="@string/mail_config_type_hint"
-                android:inputType="none" />
+                android:text="@string/mail_config_type_hint"/>
 
             <TextView
                 android:id="@+id/mail_ou_type"

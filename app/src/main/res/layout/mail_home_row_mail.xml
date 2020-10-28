@@ -45,6 +45,7 @@
 
                 <TextView
                     android:id="@+id/mail_row_user"
+                    style="@style/MailComponents.h4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/mail_row_user"
@@ -52,6 +53,7 @@
 
                 <TextView
                     android:id="@+id/mail_row_title"
+                    style="@style/MailComponents.h4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/mail_row_title" />
@@ -65,7 +67,7 @@
 
             <TextView
                 android:id="@+id/mail_row_date"
-                style="@style/MailComponents.AlignTopRight"
+                style="@style/MailComponents.AlignTopRight.DateLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mail_row_date" />

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.async.AsyncTaskWithCallback;
@@ -43,17 +44,19 @@ public class ConfigMailActivity extends AppCompatActivity {
     private RelativeLayout rlOuHost;
     private RelativeLayout rlOuType;
     private RelativeLayout rlOuPort;
+    private TextView tvInLabel;
+    private TextView tvOuLabel;
 
     private EditText edMail;
     private EditText edInUser;
     private EditText edInPass;
     private EditText edInHost;
-    private EditText edInType;
+    private TextView edInType;
     private EditText edInPort;
     private EditText edOuUser;
     private EditText edOuPass;
     private EditText edOuHost;
-    private EditText edOuType;
+    private TextView edOuType;
     private EditText edOuPort;
 
     @Override
@@ -81,6 +84,8 @@ public class ConfigMailActivity extends AppCompatActivity {
         rlOuHost = findViewById(R.id.mail_ou_host_group);
         rlOuPort = findViewById(R.id.mail_ou_port_group);
         rlOuType = findViewById(R.id.mail_ou_type_group);
+        tvInLabel = findViewById(R.id.mail_in_label);
+        tvOuLabel = findViewById(R.id.mail_ou_label);
 
         edMail = findViewById(R.id.mail_email_input);
         edInUser = findViewById(R.id.mail_in_user_input);
@@ -206,6 +211,8 @@ public class ConfigMailActivity extends AppCompatActivity {
         rlOuHost.setVisibility(showAdvanced ? View.GONE : View.VISIBLE);
         rlOuPort.setVisibility(showAdvanced ? View.GONE : View.VISIBLE);
         rlOuType.setVisibility(showAdvanced ? View.GONE : View.VISIBLE);
+        tvInLabel.setVisibility(showAdvanced ? View.GONE : View.VISIBLE);
+        tvOuLabel.setVisibility(showAdvanced ? View.GONE : View.VISIBLE);
 
         showAdvanced = !showAdvanced;
     }
