@@ -1,15 +1,16 @@
 package com.nc.uetmail.mail.database.models;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 import java.util.HashSet;
 
 @Entity(tableName = "mail_user_table")
 public class UserModel extends BaseTimeModel {
     public enum MailProtocol {
-        SMTP((byte) 1, "smtp"), POP3((byte) 3, "pop3"), IMAP((byte) 5, "imap");
+        SMTP((byte) 1, "smtp"), POP3((byte) 3, "pop3"), IMAP((byte) 5, "imap"),
+        GMAIL((byte) 88, "gmail");
 
         public final byte id;
         public final String name;
@@ -20,7 +21,7 @@ public class UserModel extends BaseTimeModel {
         }
 
         public boolean eq(String str) {
-            return name() == str;
+            return name().equals(str);
         }
     }
 
@@ -36,7 +37,7 @@ public class UserModel extends BaseTimeModel {
         }
 
         public boolean eq(String str) {
-            return name() == str;
+            return name().equals(str);
         }
     }
 
@@ -94,10 +95,9 @@ public class UserModel extends BaseTimeModel {
     }
 
     public UserModel(final String protocol, final String email, final String user,
-                     final String pass, final String hostname,
-                     final String type, final Integer port, final String iv, final boolean sync,
-                     final boolean incoming,
-                     final int target_id, final boolean valid_user) {
+                     final String pass, final String hostname, final String type,
+                     final Integer port, final String iv, final boolean sync,
+                     final boolean incoming, final int target_id, final boolean valid_user) {
         this.protocol = protocol;
         this.email = email;
         this.user = user;
@@ -133,7 +133,7 @@ public class UserModel extends BaseTimeModel {
     }
 
     public String getFirstUserLetter() {
-        return !"".equals(email) ? (email.charAt(0) + "") : "?";
+        return !"".equals(email) ? (email.toUpperCase().charAt(0) + "") : "?";
     }
 
     @Override

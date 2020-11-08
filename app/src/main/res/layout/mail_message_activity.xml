@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="@dimen/size_6"
+    android:layout_marginVertical="@dimen/size_10"
+    tools:context=".mail.view.MessageActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/mail_message_subject"
+            style="@style/MailComponents.h2"
+            android:layout_marginVertical="@dimen/size_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mail_row_title"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:layout_marginVertical="@dimen/size_4"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center|start">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/mail_letter_a"
+                    app:srcCompat="@drawable/mail_bg_circle_danger" />
+
+                <TextView
+                    android:id="@+id/mail_message_icon_letter"
+                    style="@style/MailComponents.TextLetter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mail_letter_a" />
+            </RelativeLayout>
+            <LinearLayout
+                style="@style/MailComponents.RowBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/mail_message_from"
+                        style="@style/MailComponents.h4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/mail_row_user_with_mail"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/mail_message_sent_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/mail_row_date" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorDisabled" />
+
+        <LinearLayout
+            style="@style/MailComponents.RowBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/size_4"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/size_6"
+                    android:text="@string/mail_compose_to"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/mail_message_to"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorLink"
+                    android:text="@string/mail_config_email_hint" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/size_6"
+                    android:text="@string/mail_compose_cc"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/mail_message_cc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorLink"
+                    android:text="@string/mail_cc_hint" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorDisabled" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            tools:listitem="@layout/mail_home_row_message"
+            tools:itemCount="4"
+            android:id="@+id/mail_message_list_attach"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/size_8"
+            android:layout_marginTop="@dimen/size_8"
+            android:layout_marginEnd="@dimen/size_8"
+            android:layout_marginBottom="@dimen/size_8"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorDisabled" />
+
+        <WebView
+            android:id="@+id/mail_message_wv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/size_8"
+            android:visibility="gone"
+            tools:ignore="WebViewLayout" />
+        <TextView
+            android:id="@+id/mail_message_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/size_8"
+            android:text="@string/mail_row_body_txt" />
+    </LinearLayout>
+</ScrollView>

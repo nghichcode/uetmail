@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mail_home_select_user_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -17,7 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/size_8"
-        android:layout_marginHorizontal="@dimen/size_8">
+        android:layout_marginHorizontal="@dimen/size_8"
+        android:orientation="vertical">
         <Button
             android:id="@+id/mail_home_add_user_btn"
             style="@style/MailComponents.BtnInfo"
@@ -25,5 +26,29 @@
             android:layout_height="wrap_content"
             android:onClick="toggleAdvanced"
             android:text="@string/mail_add_user" />
+
+        <LinearLayout
+            android:id="@+id/mail_home_add_gg_user_btn"
+            style="@style/MailComponents.BtnWarning"
+            android:padding="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:text="@string/mail_add_google_user"/>
+            <ImageView
+                style="@style/MailComponents.GGTextLetter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/size_12"
+                android:src="@drawable/ic_google"
+                android:contentDescription="@string/mail_add_google_user" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -1,7 +1,7 @@
 package com.nc.uetmail.mail.database.models;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "mail_folder_table")
 public class FolderModel extends BaseTimeModel {

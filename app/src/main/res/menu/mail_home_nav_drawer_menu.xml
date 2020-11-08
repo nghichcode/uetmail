@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <group android:checkableBehavior="single">
         <item
@@ -32,14 +31,14 @@
             android:id="@+id/mail_home_nav_other"
             android:icon="@drawable/ic_folder"
             android:title="@string/mail_other" />
-    </group>
+                        </group>
 
     <item android:title="">
         <menu>
             <item
                 android:id="@+id/mail_home_nav_manage"
                 android:icon="@drawable/ic_build"
-                android:title="@string/action_settings" />
+                android:title="@string/mail_settings" />
         </menu>
     </item>
 

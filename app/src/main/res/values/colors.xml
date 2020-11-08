@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorWhiteDisabled">#FFFCFC</color>
     <color name="colorBlack">#000000</color>
     <color name="colorGray">#AAAAAA</color>
     <color name="colorTransparent">#00FFFFFF</color>
@@ -12,6 +13,7 @@
     <color name="colorDanger">#DC3545</color>
     <color name="colorWarning">#FFC107</color>
     <color name="colorInfo">#17A2B8</color>
+    <color name="colorLink">#0077cc</color>
 
     <color name="colorSuccessActive">#9928A745</color>
     <color name="colorDangerActive">#99DC3545</color>

@@ -1,27 +1,25 @@
 package com.nc.uetmail.mail.view;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,16 +39,16 @@ import com.nc.uetmail.mail.utils.touch_helper.HomeTouchCallback.SwipeInterface;
 import com.nc.uetmail.mail.viewmodel.MasterViewModel;
 import com.nc.uetmail.mail.viewmodel.MailViewModel;
 import com.nc.uetmail.mail.viewmodel.UserViewModel;
-import com.nc.uetmail.main.utils.RecyclerViewSwipeDecorator;
 
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
-    public static final String EXTRA_CONFIG_TYPE = "com.nc.uetmail.mail.EXTRA_CONFIG_TYPE";
     public static final String EXTRA_CONFIG_UID = "com.nc.uetmail.mail.EXTRA_CONFIG_UID";
+    public static final String EXTRA_MESSAGE_ID = "com.nc.uetmail.mail.EXTRA_MESSAGE_ID";
     public static final int REQUEST_CONFIG = 1;
-    public static final int REQUEST_RECONFIG = 2;
+    public static final int REQUEST_CONFIG_GG = 2;
     public static final int REQUEST_COMPOSE = 3;
+    public static final int REQUEST_MESSAGE = 4;
 
     private MasterViewModel masterViewModel;
     private MailViewModel mailViewModel;
@@ -85,7 +83,7 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             }
         });
 
-        drawer = (DrawerLayout) findViewById(R.id.mail_drawer_layout);
+        drawer = findViewById(R.id.mail_drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open,
             R.string.navigation_drawer_close);
@@ -104,6 +102,12 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         );
 
         messageAdapter = new MessageRecyclerAdapter();
+        messageAdapter.setOnItemClickListener(new MessageRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(MailModel model) {
+                showMessageActivity(model);
+            }
+        });
         new ItemTouchHelper(mailTouch).attachToRecyclerView(rvListEmail);
         rvListEmail.setAdapter(messageAdapter);
 
@@ -143,6 +147,14 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
                 if (alertDialog != null) alertDialog.hide();
             }
         });
+        LinearLayout llAddGGUser = customView.findViewById(R.id.mail_home_add_gg_user_btn);
+        llAddGGUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showGGConfigActivity();
+                if (alertDialog != null) alertDialog.hide();
+            }
+        });
         rvSelectUser.setLayoutManager(new LinearLayoutManager(this));
         rvSelectUser.setHasFixedSize(true);
         rvSelectUser.addItemDecoration(
@@ -162,10 +174,15 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         userViewModel.getActiveInbUser().observe(this, new Observer<UserModel>() {
             @Override
             public void onChanged(@Nullable UserModel userModel) {
-                if (userModel == null) return;
-                userModel.nullToEmpty();
-                tvNavUser.setText(userModel.user);
-                tvNavEmail.setText(userModel.email);
+                if (userModel == null) {
+                    tvNavUser.setText(R.string.mail_row_empty_user);
+                    tvNavEmail.setText(R.string.mail_row_empty_user_hint);
+                }
+                else {
+                    userModel.nullToEmpty();
+                    tvNavUser.setText(userModel.user);
+                    tvNavEmail.setText(userModel.email);
+                }
             }
         });
         alertDialog = alertBuilder.create();
@@ -179,9 +196,20 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         startActivityForResult(configIntent, REQUEST_CONFIG);
     }
 
+    public void showGGConfigActivity() {
+        Intent configIntent = new Intent(this, GoogleSelectAccount.class);
+        startActivityForResult(configIntent, REQUEST_CONFIG_GG);
+    }
+
     public void showComposeActivity(View v) {
         Intent configIntent = new Intent(this, ComposeMailActivity.class);
         startActivityForResult(configIntent, REQUEST_COMPOSE);
+    }
+
+    public void showMessageActivity(MailModel model) {
+        Intent intent = new Intent(this, MessageActivity.class);
+        intent.putExtra(EXTRA_MESSAGE_ID, model.id);
+        startActivityForResult(intent, REQUEST_MESSAGE);
     }
 
     @Override
@@ -197,17 +225,12 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             @Override
             public void onSwiped(@NonNull ViewHolder viewHolder, int swipeDir) {
                 if (swipeDir == ItemTouchHelper.RIGHT) {
-                    Toast.makeText(
-                        HomeActivity.this, getResources().getString(R.string.mail_archived),
-                        Toast.LENGTH_SHORT
-                    ).show();
+                    showToast(getResources().getString(R.string.mail_archived));
                 } else {
                     mailViewModel.delete(messageAdapter.getMessageAt(viewHolder.getAdapterPosition()));
-                    Toast.makeText(
-                        HomeActivity.this, getResources().getString(R.string.mail_deleted),
-                        Toast.LENGTH_SHORT
-                    ).show();
+                    showToast(getResources().getString(R.string.mail_deleted));
                 }
+                messageAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
             }
         },
             getResources().getString(R.string.mail_delete),
@@ -218,18 +241,14 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             @Override
             public void onSwiped(@NonNull ViewHolder viewHolder, int swipeDir) {
                 if (swipeDir == ItemTouchHelper.RIGHT) {
-                    Toast.makeText(
-                        HomeActivity.this, getResources().getString(R.string.mail_edit),
-                        Toast.LENGTH_SHORT
-                    ).show();
+                    showToast(getResources().getString(R.string.mail_edit));
                     UserModel u = userMailAdapter.getUserAt(viewHolder.getAdapterPosition());
                     showConfigActivity(u != null ? u.id : -1);
                 } else {
-                    Toast.makeText(
-                        HomeActivity.this, getResources().getString(R.string.mail_deleted),
-                        Toast.LENGTH_SHORT
-                    ).show();
+                    showToast(getResources().getString(R.string.mail_deleted));
+                    userViewModel.delete(userMailAdapter.getUserAt(viewHolder.getAdapterPosition()));
                 }
+                userMailAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
             }
         },
             getResources().getString(R.string.mail_delete),
@@ -274,13 +293,13 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         switch (item.getItemId()) {
             case R.id.mail_home_menu_btn_sync:
                 mailViewModel.syncMail();
-                Toast.makeText(
-                    HomeActivity.this, getResources().getString(R.string.mail_sync_start),
-                    Toast.LENGTH_SHORT
-                ).show();
+                showToast(getResources().getString(R.string.mail_sync_start));
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    void showToast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
 }

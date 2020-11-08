@@ -1,10 +1,14 @@
 package com.nc.uetmail.mail.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.support.annotation.NonNull;
 
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.ComputableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
+import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.repository.UserRepository;
 
@@ -36,5 +40,17 @@ public class UserViewModel extends AndroidViewModel {
 
     public LiveData<UserModel> getActiveInbUser() {
         return repository.getActiveInbUser();
+    }
+
+    public void upsertFromRawPass(UserModel inbModel, UserModel oubModel) {
+        repository.upsertFromRawPass(inbModel, oubModel);
+    }
+
+    public UserModel decryptUser(UserModel model) {
+        return repository.decryptUser(model);
+    }
+
+    public List<UserModel> getUsersByIdOrTargetId(int id) {
+        return repository.getUsersByIdOrTargetId(id);
     }
 }

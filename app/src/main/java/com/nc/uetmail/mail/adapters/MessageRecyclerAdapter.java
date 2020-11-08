@@ -1,8 +1,8 @@
 package com.nc.uetmail.mail.adapters;
 
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.MailModel;
+import com.nc.uetmail.mail.session.components.MailMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +59,9 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         message.nullToEmpty();
         noteHolder.tvRowIconLetter.setText(message.getFirstUserLetter());
         noteHolder.tvRowTitle.setText(message.getShortSubject());
-        noteHolder.tvRowUser.setText(message.mail_from);
+        noteHolder.tvRowUser.setText(MailMessage.toPersonalString(message.mail_from));
         noteHolder.tvRowBodyTxt.setText(message.getShortBodyTxt());
-        noteHolder.tvRowDate.setText(message.getFormatDate());
+        noteHolder.tvRowDate.setText(message.getFormatSentDate());
     }
 
     @Override

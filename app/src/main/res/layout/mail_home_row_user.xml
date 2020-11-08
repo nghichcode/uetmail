@@ -26,6 +26,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mail_letter_a" />
+        <ImageView
+            android:id="@+id/mail_row_user_icon_gg"
+            style="@style/MailComponents.GGTextLetter"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_google"
+            android:contentDescription="@string/mail_add_google_user" />
     </RelativeLayout>
 
     <LinearLayout

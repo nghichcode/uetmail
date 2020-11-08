@@ -1,6 +1,7 @@
 package com.nc.uetmail.mail.database.repository;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
+
 import android.content.Context;
 
 import com.nc.uetmail.mail.database.MailDatabase;
@@ -55,7 +56,10 @@ public class UserRepository {
         new AsyncCallback(new CallbackInterface() {
             @Override
             public void call() {
-                userDao.delete(user);
+                userDao.deleteById(user.id);
+                UserModel tmp = userDao.getLastInbUser();
+                if (tmp != null && tmp.id > 0) masterDao.setActiveUserIfNull(user.id, tmp.id);
+                else masterDao.setActiveUserIfNull(user.id, 0);
             }
         }).execute();
     }
@@ -69,13 +73,31 @@ public class UserRepository {
         }).execute();
     }
 
-    public void insertFromRawPass(final UserModel inbModel, final UserModel oubModel) {
+    public void upsertGoogleAccount(final UserModel inbModel, final UserModel oubModel) {
         new AsyncCallback(new CallbackInterface() {
             @Override
             public void call() {
+                if (userDao.getUserByEmail(inbModel.email) == null) {
+                    inbModel.id = oubModel.id = 0;
+                    int uid = (int) userDao.insert(inbModel);
+                    oubModel.target_id = uid;
+                    userDao.insert(oubModel);
+                    MasterModel masterModel = masterDao.getFirstMasterModel();
+                    masterModel.active_user_id = uid;
+                    masterDao.update(masterModel);
+                }
+            }
+        }).execute();
+    }
+
+    public void upsertFromRawPass(final UserModel inbModel, final UserModel oubModel) {
+        new AsyncCallback(new CallbackInterface() {
+            @Override
+            public void call() {
+                if (inbModel.id <= 0 && userDao.getUserByEmail(inbModel.email) != null) return;
+
                 String message_digest = MasterRepository
                     .getOrCreateMasterModel(masterDao).message_digest;
-                int uid = 0;
                 try {
                     CryptData data = CryptorAesCbc.encryptWithKey(inbModel.pass, message_digest);
                     if (inbModel.pass.equals(oubModel.pass)) {
@@ -94,12 +116,18 @@ public class UserRepository {
                 }
 
                 inbModel.valid_user = oubModel.valid_user = true;
-                uid = (int) userDao.insert(inbModel);
-                oubModel.target_id = uid;
-                userDao.insert(oubModel);
-                MasterModel masterModel = masterDao.getFirstMasterModel();
-                masterModel.active_user_id = uid;
-                masterDao.update(masterModel);
+                if (inbModel.id > 0 && oubModel.id > 0) {
+                    userDao.update(inbModel);
+                    userDao.update(oubModel);
+                } else {
+                    inbModel.id = oubModel.id = 0;
+                    int uid = (int) userDao.insert(inbModel);
+                    oubModel.target_id = uid;
+                    userDao.insert(oubModel);
+                    MasterModel masterModel = masterDao.getFirstMasterModel();
+                    masterModel.active_user_id = uid;
+                    masterDao.update(masterModel);
+                }
             }
         }).execute();
 
@@ -139,20 +167,7 @@ public class UserRepository {
         return userDao.getUserById(id);
     }
 
-    public LiveData<UserModel> getUserByTargetId(int id) {
-        return userDao.getUserByTargetId(id);
+    public List<UserModel> getUsersByIdOrTargetId(int id) {
+        return userDao.getUsersByIdOrTargetId(id);
     }
-
-    public void handleUsersByIdOrTargetId(
-        final int id, final CallbackWithParamInterface<List<UserModel>> cb
-    ) {
-        new AsyncCallback(new CallbackInterface() {
-            @Override
-            public void call() {
-                List<UserModel> userModels = userDao.getUsersByIdOrTargetId(id);
-                cb.call(userModels);
-            }
-        }).execute();
-    }
-
 }

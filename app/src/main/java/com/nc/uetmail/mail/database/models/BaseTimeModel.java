@@ -1,6 +1,6 @@
 package com.nc.uetmail.mail.database.models;
 
-import android.arch.persistence.room.TypeConverters;
+import androidx.room.TypeConverters;
 
 import com.nc.uetmail.mail.converters.DateConverter;
 

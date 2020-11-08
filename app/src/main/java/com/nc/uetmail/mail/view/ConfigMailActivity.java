@@ -1,12 +1,14 @@
 package com.nc.uetmail.mail.view;
 
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,19 +19,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
-import com.nc.uetmail.mail.async.AsyncTaskWithCallback;
-import com.nc.uetmail.mail.async.AsyncTaskWithCallback.CallbackWithParamInterface;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
-import com.nc.uetmail.mail.database.repository.UserRepository;
+import com.nc.uetmail.mail.viewmodel.UserViewModel;
 
 import java.util.List;
 
 public class ConfigMailActivity extends AppCompatActivity {
 
     private boolean showAdvanced = true;
-    private UserRepository userRepository;
+    private UserViewModel userViewModel;
 
     private UserModel inbModel;
     private UserModel oubModel;
@@ -70,7 +70,7 @@ public class ConfigMailActivity extends AppCompatActivity {
             );
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
-        userRepository = new UserRepository(this);
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         inbModel = new UserModel();
         oubModel = new UserModel();
 
@@ -115,41 +115,14 @@ public class ConfigMailActivity extends AppCompatActivity {
         edInPort.setText("" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), inbModel.type));
         edOuPort.setText("" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), oubModel.type));
 
-        int iuid = 0;
         Intent intent = getIntent();
         if (intent.hasExtra(HomeActivity.EXTRA_CONFIG_UID)) {
-            iuid = intent.getIntExtra(HomeActivity.EXTRA_CONFIG_UID, 0);
+            int uid = intent.getIntExtra(HomeActivity.EXTRA_CONFIG_UID, 0);
+            if (uid > 0) {
+                new HandleUserAsync(this, userViewModel, uid).execute();
+            }
         }
 
-        if (iuid > 0)
-            userRepository.handleUsersByIdOrTargetId(
-                iuid,
-                new CallbackWithParamInterface<List<UserModel>>() {
-                    @Override
-                    public void call(List<UserModel> userModels) {
-                        if (userModels.size() != 2) return;
-                        UserModel inbModelTmp = userRepository.decryptUser(userModels.get(0));
-                        UserModel oubModelTmp = userRepository.decryptUser(userModels.get(1));
-                        if (inbModelTmp.id != oubModelTmp.target_id) {
-                            ConfigMailActivity.this.inbModel = oubModelTmp;
-                            ConfigMailActivity.this.oubModel = inbModelTmp;
-                        } else {
-                            ConfigMailActivity.this.inbModel = inbModelTmp;
-                            ConfigMailActivity.this.oubModel = oubModelTmp;
-                        }
-                        ConfigMailActivity.this.edMail.setText(inbModel.email);
-                        ConfigMailActivity.this.edInUser.setText(inbModel.user);
-                        ConfigMailActivity.this.edInPass.setText(inbModel.pass);
-                        ConfigMailActivity.this.edInHost.setText(inbModel.hostname);
-                        ConfigMailActivity.this.edInType.setText(inbModel.type);
-                        ConfigMailActivity.this.edInPort.setText(inbModel.port);
-                        ConfigMailActivity.this.edOuUser.setText(oubModel.user);
-                        ConfigMailActivity.this.edOuPass.setText(oubModel.pass);
-                        ConfigMailActivity.this.edOuHost.setText(oubModel.hostname);
-                        ConfigMailActivity.this.edOuType.setText(oubModel.type);
-                        ConfigMailActivity.this.edOuPort.setText(oubModel.port);
-                    }
-                });
     }
 
     @Override
@@ -198,6 +171,23 @@ public class ConfigMailActivity extends AppCompatActivity {
             }
         });
         popup.show();
+    }
+
+    public void setViewFromModel(UserModel inb, UserModel oub) {
+        if (inb == null || oub == null) return;
+        inbModel = inb;
+        oubModel = oub;
+        edMail.setText("" + inb.email);
+        edInUser.setText("" + inb.user);
+        edInPass.setText("" + inb.pass);
+        edInHost.setText("" + inb.hostname);
+        edInType.setText("" + inb.type);
+        edInPort.setText("" + inb.port);
+        edOuUser.setText("" + (inb.user != oub.user ? oub.user : ""));
+        edOuPass.setText("" + (inb.pass != oub.pass ? oub.pass : ""));
+        edOuHost.setText("" + oub.hostname);
+        edOuType.setText("" + oub.type);
+        edOuPort.setText("" + oub.port);
     }
 
     public void toggleAdvanced(View v) {
@@ -255,9 +245,8 @@ public class ConfigMailActivity extends AppCompatActivity {
         if ("".equals(oubModel.pass)) oubModel.pass = inbModel.pass;
 
         if (validate(inbModel) && validate(oubModel)) {
-            userRepository.insertFromRawPass(inbModel, oubModel);
-            final Intent resultIntent = new Intent();
-            setResult(RESULT_OK, resultIntent);
+            userViewModel.upsertFromRawPass(inbModel, oubModel);
+            setResult(RESULT_OK);
             finish();
         }
     }
@@ -271,6 +260,37 @@ public class ConfigMailActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    private static class HandleUserAsync extends AsyncTask<Void, Void, Void> {
+        private ConfigMailActivity activity;
+        private UserViewModel userViewModel;
+        private int uid;
+        private UserModel inb;
+        private UserModel oub;
+
+
+        public HandleUserAsync(final ConfigMailActivity activity,
+                               final UserViewModel userViewModel, int uid) {
+            this.activity = activity;
+            this.userViewModel = userViewModel;
+            this.uid = uid;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<UserModel> userModels = userViewModel.getUsersByIdOrTargetId(uid);
+            if (userModels.size() != 2) return null;
+            inb = userViewModel.decryptUser(userModels.get(0));
+            oub = userViewModel.decryptUser(userModels.get(1));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            activity.setViewFromModel(inb, oub);
+        }
     }
 
 }

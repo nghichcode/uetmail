@@ -1,6 +1,5 @@
 package com.nc.uetmail.mail;
 
-import com.nc.uetmail.mail.session.MailHelper;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;

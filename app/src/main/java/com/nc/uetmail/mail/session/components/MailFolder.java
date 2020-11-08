@@ -35,10 +35,8 @@ public class MailFolder {
 
     public ArrayList<MailMessage> getMessages() throws Exception {
         if (messages == null) {
-            this.messages = new ArrayList<>();
-            if (isRoot) {
-                return messages;
-            }
+            messages = new ArrayList<>();
+            if (isRoot) return messages;
             folder.open(Folder.READ_ONLY);
             Message[] folderMessages = folder.getMessages();
             for (int i = 0; i < folderMessages.length; i++) {
@@ -76,8 +74,8 @@ public class MailFolder {
         return "NCFolderObject{" +
             "name=" + folder.getName() +
             ", fullName=" + folder.getFullName() +
-            ", childrenFolders=" + childrenFolders +
-            ", messageObjects=" + messages +
+            ", childrenFolders=" + childrenFolders.size() +
+            ", messageObjects=" + messages.size() +
             '}';
     }
 }

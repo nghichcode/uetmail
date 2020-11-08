@@ -8,14 +8,15 @@
 
     <dimen name="mail_h256">256dp</dimen>
 
+    <dimen name="size_2">2dp</dimen>
+    <dimen name="size_4">4dp</dimen>
     <dimen name="size_6">6dp</dimen>
     <dimen name="size_8">8dp</dimen>
     <dimen name="size_10">10dp</dimen>
     <dimen name="size_12">12dp</dimen>
+    <dimen name="size_20">24dp</dimen>
+    <dimen name="size_24">24dp</dimen>
     <dimen name="size_30">30dp</dimen>
     <dimen name="size_40">40dp</dimen>
     <dimen name="size_60">60dp</dimen>
-
-    <dimen name="radius_sm">2dp</dimen>
-    <dimen name="border_sm">1dp</dimen>
 </resources>

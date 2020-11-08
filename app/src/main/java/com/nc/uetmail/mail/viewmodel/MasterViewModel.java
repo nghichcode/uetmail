@@ -1,8 +1,8 @@
 package com.nc.uetmail.mail.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.annotation.NonNull;
 
 import com.nc.uetmail.mail.database.models.MasterModel;
 import com.nc.uetmail.mail.database.models.UserModel;

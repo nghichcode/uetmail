@@ -1,11 +1,12 @@
 package com.nc.uetmail.mail.adapters;
 
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
@@ -20,12 +21,14 @@ public class UserMailRecyclerAdapter extends RecyclerView.Adapter<UserMailRecycl
 
     class MessageHolder extends RecyclerView.ViewHolder {
         private TextView tvRowUserIconLetter;
+        private ImageView tvRowUserIconGG;
         private TextView tvRowUserName;
         private TextView tvRowUserMail;
 
         public MessageHolder(@NonNull final View itemView) {
             super(itemView);
             tvRowUserIconLetter = itemView.findViewById(R.id.mail_row_user_icon_letter);
+            tvRowUserIconGG = itemView.findViewById(R.id.mail_row_user_icon_gg);
             tvRowUserName = itemView.findViewById(R.id.mail_row_user_name);
             tvRowUserMail = itemView.findViewById(R.id.mail_row_user_email);
 
@@ -52,9 +55,14 @@ public class UserMailRecyclerAdapter extends RecyclerView.Adapter<UserMailRecycl
     public void onBindViewHolder(@NonNull MessageHolder noteHolder, int position) {
         UserModel userModel = users.get(position);
         userModel.nullToEmpty();
+
         noteHolder.tvRowUserIconLetter.setText(userModel.getFirstUserLetter());
         noteHolder.tvRowUserName.setText(userModel.user);
         noteHolder.tvRowUserMail.setText(userModel.email);
+
+        boolean isGmail = UserModel.MailProtocol.GMAIL.eq(userModel.protocol);
+        noteHolder.tvRowUserIconLetter.setVisibility(isGmail ? View.GONE : View.VISIBLE);
+        noteHolder.tvRowUserIconGG.setVisibility(!isGmail ? View.GONE : View.VISIBLE);
     }
 
     @Override

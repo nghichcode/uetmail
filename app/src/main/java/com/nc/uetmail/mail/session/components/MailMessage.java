@@ -1,9 +1,8 @@
 package com.nc.uetmail.mail.session.components;
 
-import android.os.Environment;
-
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.MailModel;
+import com.nc.uetmail.mail.utils.MailAndroidUtils;
 import com.nc.uetmail.mail.utils.crypt.CryptoUtils;
 import com.sun.mail.imap.IMAPBodyPart;
 import com.sun.mail.imap.IMAPFolder;
@@ -11,13 +10,16 @@ import com.sun.mail.imap.protocol.BODYSTRUCTURE;
 import com.sun.mail.util.BASE64DecoderStream;
 
 import javax.mail.Address;
+import javax.mail.Flags;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -28,7 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 public class MailMessage {
     private Message message;
@@ -47,26 +51,16 @@ public class MailMessage {
     public MailMessage(IMAPFolder imapFolder, Message message) throws Exception {
         this.message = message;
 
-        String content_type = message.getContentType();
-        long mail_uid = imapFolder.getUID(message);
-        String mail_subject = message.getSubject();
-        String mail_from = getAddressString(message, null);
-        String mail_to = getAddressString(message, RecipientType.TO);
-        String mail_cc = getAddressString(message, RecipientType.CC);
-        String mail_bcc = getAddressString(message, RecipientType.BCC);
-
-        String mail_content_txt = "";
-        String mail_content_html = "";
-        boolean mail_has_attachment = false;
-        boolean mail_has_html_source = false;
-        int mail_flags_code = 0;
-        Date mail_sent_date = null;
-        Date mail_received_date = null;
-
+        String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
         mailModel = new MailModel(
-            -1, -1, content_type, mail_uid, mail_subject, mail_from, mail_to,
-            mail_cc, mail_bcc, mail_content_txt, mail_content_html, mail_has_attachment,
-            mail_has_html_source, mail_flags_code, mail_sent_date, mail_received_date, true
+            -1, -1, message.getContentType(), imapFolder.getUID(message) + "",
+            message.getSubject(), getAddressString(message, null),
+            getAddressString(message, RecipientType.TO),
+            getAddressString(message, RecipientType.CC),
+            getAddressString(message, RecipientType.BCC),
+            "", "", false, attachFolder,
+            false, message.getFlags().hashCode(),
+            message.getSentDate(), message.getReceivedDate(), true
         );
         attachments = new ArrayList<>();
 
@@ -81,36 +75,52 @@ public class MailMessage {
         }
     }
 
-    private void writePart(Part p, MailModel mailModel) throws MessagingException, IOException {
+    public void writePart(Part p, MailModel mailModel) throws MessagingException, IOException {
+        writePart(p, mailModel, true);
+    }
+
+    public void writePart(Part p, MailModel mailModel, boolean download)
+        throws MessagingException, IOException {
+        if (p == null || mailModel == null) return;
         if (p.isMimeType("text/plain")) {
             mailModel.mail_content_txt = (String) p.getContent();
         } else if (p.isMimeType("text/html")) {
             mailModel.mail_content_html = (String) p.getContent();
         } else if (p.isMimeType("multipart/*")) {
             Multipart mp = (Multipart) p.getContent();
-            int count = mp.getCount();
-            for (int i = 0; i < count; i++) writePart(mp.getBodyPart(i), mailModel);
+            for (int i = 0; i < mp.getCount(); i++) writePart(mp.getBodyPart(i), mailModel);
         } else {
             Object o = p.getContent();
             if (!(o instanceof BASE64DecoderStream || o instanceof InputStream)) return;
-            String path = Environment.getExternalStorageDirectory()
-                + File.separator + "uetmail_data";
-            if (new File(path).isDirectory()) new File(path).mkdirs();
+            String fileName = p.getFileName();
+            if (fileName == null || fileName.isEmpty()) return;
+            BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
+            if (null != bs && null != bs.subtype && !fileName.toLowerCase().endsWith(bs.subtype.toLowerCase()))
+                fileName += "." + bs.subtype.toLowerCase();
+            String path = mailModel.attachments_folder;
+            if (!new File(path).isDirectory()) new File(path).mkdirs();
             if (!new File(path).exists()) throw new IOException("Can not make dir.");
-            String filePath = path + File.separator + p.getFileName();
+            String filePath = path + File.separator + fileName;
             try {
-                new File(filePath).createNewFile();
+                new File(filePath).getCanonicalPath();
             } catch (IOException e) {
-                BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
-                filePath = path + File.separator
-                    + CryptoUtils.byte2hex(CryptoUtils.getRandomNonce(16))
-                    + "." + bs != null ? bs.subtype : "ext";
+                System.err.println(e.toString());
+                fileName = fileName.replaceAll("[:\\\\/*?|<>]", "_");
+                filePath = path + File.separator + fileName;
             }
+
             String contentID = ((IMAPBodyPart) p).getContentID();
+            contentID = contentID != null ? contentID.replaceAll("<|>", "") : null;
+            boolean html_source = contentID != null;
+            String uri = MailAndroidUtils.ROOT_URI + filePath;
+            if (html_source && mailModel.mail_content_html != null && !"".equals(mailModel
+            .mail_content_html))
+                mailModel.mail_content_html =
+                    mailModel.mail_content_html.replaceAll("cid:" + contentID, fileName);
             attachments.add(new AttachmentModel(
-                -1, p.getContentType(),
-                contentID != null, "", "", false, p.getFileName(),
-                p.getSize(), p.getDisposition(), contentID));
+                "", -1, p.getContentType(), html_source,
+                filePath, uri, (html_source || download),
+                fileName, p.getSize(), p.getDisposition(), contentID));
             if (o instanceof BASE64DecoderStream) {
                 File f = new File(filePath);
                 DataOutputStream output = new DataOutputStream(
@@ -135,40 +145,94 @@ public class MailMessage {
         }
     }
 
-    public static Address[] getAddressFromString(String s) throws AddressException {
-        if (s == null || s.trim().length() == 0) return null;
-        String[] address_kvs = s.split(";");
-        String emails = "";
-        for (int i = 0; i < address_kvs.length; i++) {
-            if (address_kvs[i] == null || address_kvs[i].trim().length() == 0) continue;
-            String[] address_kv = address_kvs[i].split(":");
-            if (address_kv.length == 2 || address_kv.length == 1) {
-                String email = address_kv.length == 2 ? address_kv[1] : address_kv[0];
-                if (email.split("@").length == 2) {
-                    emails += (email + ",");
-                }
+    public static Address[] toAddresses(String s) {
+        if (s == null || s.trim().isEmpty()) return null;
+        final String[] tmps = s.split(",");
+        List<Address> addressList = new ArrayList<>();
+        for (int i = 0; i < tmps.length; i++) {
+            try {
+                Address address = new InternetAddress(tmps[i].trim());
+                addressList.add(address);
+            } catch (AddressException e) {
+                e.printStackTrace();
             }
         }
-        return InternetAddress.parse(emails);
+        return addressList.toArray(new Address[addressList.size()]);
+    }
+
+    public static String toAddressString(String ad) {
+        String s = "";
+        if (ad == null) return s;
+        Address[] from = MailMessage.toAddresses(ad);
+        if (from != null && from.length > 0) {
+            for (int i = 0; i < from.length; i++) {
+                s += ((InternetAddress) from[i]).getAddress().trim();
+                if (i + 1 < from.length) s += ", ";
+            }
+        }
+        return s;
+    }
+
+    public static String toPersonalString(String ad) {
+        String s = "";
+        if (ad == null) return s;
+        Address[] from = MailMessage.toAddresses(ad);
+        if (from != null && from.length > 0) {
+            for (int i = 0; i < from.length; i++) {
+                s += ((InternetAddress) from[i]).getPersonal().trim();
+                if (i + 1 < from.length) s += ", ";
+            }
+        }
+        return s;
+    }
+
+    public static String toFullAddressString(String ad) {
+        String s = "";
+        if (ad == null) return s;
+        Address[] from = MailMessage.toAddresses(ad);
+        if (from != null && from.length > 0) {
+            for (int i = 0; i < from.length; i++) {
+                s += ((InternetAddress) from[i]).getPersonal().trim()
+                    + " (" + ((InternetAddress) from[i]).getAddress().trim() + ")";
+                if (i + 1 < from.length) s += ", ";
+            }
+        }
+        return s;
     }
 
     private String getAddressString(Message message, RecipientType type) throws MessagingException {
         String address_str = "";
-        Address[] addresses = null;
-        if (type == null) {
-            addresses = message.getFrom();
-        } else {
-            addresses = message.getRecipients(type);
-        }
+        Address[] addresses = type == null ? message.getFrom() : message.getRecipients(type);
         if (addresses != null) {
-            for (Address address : addresses) {
-                address_str += (
-                    ((InternetAddress) address).getPersonal() + ":"
-                        + ((InternetAddress) address).getAddress() + ","
-                );
+            for (int i = 0; i < addresses.length; i++) {
+                address_str += addresses[i].toString();
+                if (i + 1 != addresses.length) address_str += ",";
             }
         }
         return address_str;
     }
 
+    public static MimeMessage createMailMessage(
+        MailModel newMail, MailModel replyMail, HashMap<String, String> headers, boolean replyAll
+    ) throws MessagingException {
+        MimeMessage email = new MimeMessage(Session.getDefaultInstance(new Properties(), null));
+        Flags flags = new Flags(Flags.Flag.SEEN);
+        email.setSubject(newMail.mail_subject);
+        email.setFrom(new InternetAddress(newMail.mail_from));
+        email.setRecipients(RecipientType.TO, MailMessage.toAddresses(newMail.mail_to));
+        email.setRecipients(RecipientType.CC, MailMessage.toAddresses(newMail.mail_cc));
+        email.setRecipients(RecipientType.BCC, MailMessage.toAddresses(newMail.mail_bcc));
+        email.setSentDate(new Date());
+        email.setText(newMail.mail_content_txt);
+
+        if (replyMail != null) {
+            email.setSubject(headers.get("Subject"));
+            flags.add(Flags.Flag.ANSWERED);
+            email.setHeader("References", headers.get("References"));
+//            email.setHeader("Message-Id", headers.get("Message-Id"));
+            email.setHeader("In-Reply-To", headers.get("Message-Id"));
+        }
+        email.setFlags(flags, true);
+        return email;
+    }
 }

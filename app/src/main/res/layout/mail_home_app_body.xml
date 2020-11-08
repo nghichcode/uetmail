@@ -9,7 +9,7 @@
     tools:context=".mail.view.HomeActivity"
     tools:showIn="@layout/mail_home_app_content">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         tools:listitem="@layout/mail_home_row_mail"
         android:id="@+id/mail_home_list_email"
         android:layout_width="match_parent"

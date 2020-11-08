@@ -1,8 +1,8 @@
 package com.nc.uetmail.mail.view;
 
 import android.graphics.drawable.ColorDrawable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +11,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
+import com.nc.uetmail.mail.database.models.MailModel;
+import com.nc.uetmail.mail.utils.MailAndroidUtils;
 
 public class ComposeMailActivity extends AppCompatActivity {
     private boolean isShowAdvance = true;
@@ -20,7 +22,7 @@ public class ComposeMailActivity extends AppCompatActivity {
     private TextView tvComposeCC;
     private TextView tvComposeBCC;
     private TextView tvComposeSubject;
-    private TextView tvCompose;
+    private TextView tvComposeTxt;
 
 
     @Override
@@ -46,14 +48,30 @@ public class ComposeMailActivity extends AppCompatActivity {
         tvComposeCC = findViewById(R.id.mail_compose_cc);
         tvComposeBCC = findViewById(R.id.mail_compose_bcc);
         tvComposeSubject = findViewById(R.id.mail_compose_subject);
-        tvCompose = findViewById(R.id.mail_compose);
+        tvComposeTxt = findViewById(R.id.mail_compose_txt);
         showAdvance();
     }
 
     private void showAdvance() {
         tvComposeCC.setVisibility(isShowAdvance ? View.GONE : View.VISIBLE);
         tvComposeBCC.setVisibility(isShowAdvance ? View.GONE : View.VISIBLE);
+        btnComposeExpand.setImageResource(
+            isShowAdvance ? R.drawable.ic_expand_less : R.drawable.ic_expand_more
+        );
         isShowAdvance = !isShowAdvance;
+    }
+
+    private void sendMail() {
+        MailModel model = new MailModel();
+        model.mail_to = tvComposeTo.getText().toString();
+        model.mail_cc = tvComposeCC.getText().toString();
+        model.mail_bcc = tvComposeBCC.getText().toString();
+        model.mail_subject = tvComposeSubject.getText().toString();
+        model.mail_content_txt = tvComposeTxt.getText().toString();
+
+        MailAndroidUtils.showCtxToast(this, R.string.mail_sending);
+        setResult(RESULT_OK);
+        finish();
     }
 
     @Override
@@ -69,6 +87,7 @@ public class ComposeMailActivity extends AppCompatActivity {
                 onBackPressed();
                 break;
             case R.id.mail_compose_menu_btn_send:
+                sendMail();
                 break;
         }
         return super.onOptionsItemSelected(item);
