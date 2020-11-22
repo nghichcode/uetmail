@@ -22,11 +22,17 @@ public interface FolderDao {
     @Delete
     void delete(FolderModel folderModel);
 
+    @Query("DELETE FROM mail_folder_table WHERE user_id=:uid")
+    void deleteByUid(int uid);
+
     @Query("SELECT * FROM mail_folder_table WHERE id=:id LIMIT 1")
     FolderModel getById(int id);
 
-    @Query("SELECT * FROM mail_folder_table")
-    LiveData<List<FolderModel>> getAll();
+    @Query("SELECT * FROM mail_folder_table WHERE user_id=:uid AND type=:type LIMIT 1")
+    FolderModel getByUidAndType(int uid, String type);
+
+    @Query("SELECT f.* FROM mail_master_table m JOIN mail_folder_table f ON m.active_user_id=f.user_id AND f.type=:type")
+    LiveData<List<FolderModel>> getActiveFolders(String type);
 
     @Query("DELETE FROM mail_folder_table WHERE 1")
     void deleteAll();

@@ -66,6 +66,7 @@ public class MailMessage {
 
         try {
             writePart(message, mailModel);
+            if (attachments.size() > 0) mailModel.mail_has_attachment = true;
         } catch (MessagingException e) {
             e.printStackTrace();
             throw new Exception(e.toString());
@@ -95,7 +96,7 @@ public class MailMessage {
             String fileName = p.getFileName();
             if (fileName == null || fileName.isEmpty()) return;
             BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
-            if (null != bs && null != bs.subtype && !fileName.toLowerCase().endsWith(bs.subtype.toLowerCase()))
+            if (null != bs && null != bs.subtype && !fileName.contains("."))
                 fileName += "." + bs.subtype.toLowerCase();
             String path = mailModel.attachments_folder;
             if (!new File(path).isDirectory()) new File(path).mkdirs();
@@ -114,7 +115,7 @@ public class MailMessage {
             boolean html_source = contentID != null;
             String uri = MailAndroidUtils.ROOT_URI + filePath;
             if (html_source && mailModel.mail_content_html != null && !"".equals(mailModel
-            .mail_content_html))
+                .mail_content_html))
                 mailModel.mail_content_html =
                     mailModel.mail_content_html.replaceAll("cid:" + contentID, fileName);
             attachments.add(new AttachmentModel(
@@ -179,7 +180,7 @@ public class MailMessage {
         Address[] from = MailMessage.toAddresses(ad);
         if (from != null && from.length > 0) {
             for (int i = 0; i < from.length; i++) {
-                s += ((InternetAddress) from[i]).getPersonal().trim();
+                s += ((InternetAddress) from[i]).getPersonal();
                 if (i + 1 < from.length) s += ", ";
             }
         }
@@ -192,8 +193,8 @@ public class MailMessage {
         Address[] from = MailMessage.toAddresses(ad);
         if (from != null && from.length > 0) {
             for (int i = 0; i < from.length; i++) {
-                s += ((InternetAddress) from[i]).getPersonal().trim()
-                    + " (" + ((InternetAddress) from[i]).getAddress().trim() + ")";
+                s += ((InternetAddress) from[i]).getPersonal()
+                    + " (" + ((InternetAddress) from[i]).getAddress() + ")";
                 if (i + 1 < from.length) s += ", ";
             }
         }
@@ -213,9 +214,11 @@ public class MailMessage {
     }
 
     public static MimeMessage createMailMessage(
-        MailModel newMail, MailModel replyMail, HashMap<String, String> headers, boolean replyAll
+        Session session, MailModel newMail, MailModel replyMail, HashMap<String, String> headers,
+        boolean replyAll
     ) throws MessagingException {
-        MimeMessage email = new MimeMessage(Session.getDefaultInstance(new Properties(), null));
+        if (session == null || newMail == null || headers == null) return null;
+        MimeMessage email = new MimeMessage(session);
         Flags flags = new Flags(Flags.Flag.SEEN);
         email.setSubject(newMail.mail_subject);
         email.setFrom(new InternetAddress(newMail.mail_from));

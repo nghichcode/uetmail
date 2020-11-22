@@ -9,8 +9,26 @@
     tools:context=".mail.view.HomeActivity"
     tools:showIn="@layout/mail_home_app_content">
 
+    <include layout="@layout/mail_home_row_folder_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_8"
+        android:layout_marginEnd="@dimen/size_8" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        tools:listitem="@layout/mail_home_row_folder"
+        tools:itemCount="4"
+        android:id="@+id/mail_home_list_folder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/size_8"
+        android:layout_marginEnd="@dimen/size_8"
+        android:layout_marginBottom="@dimen/size_8"
+        android:layout_weight="1" />
+
     <androidx.recyclerview.widget.RecyclerView
         tools:listitem="@layout/mail_home_row_mail"
+        tools:itemCount="2"
         android:id="@+id/mail_home_list_email"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -4,8 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.mail.Flags;
-
 public class MailUtils {
     public static <T> T getPrivateAttr(Object o, String attrName, Class<T> type) {
         T val = null;

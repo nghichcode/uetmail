@@ -13,6 +13,7 @@
         <activity android:name=".mail.view.GoogleSelectAccount" />
         <activity android:name=".mail.view.ComposeMailActivity" />
         <activity android:name=".mail.view.MessageActivity" />
+        <activity android:name=".mail.view.MessageSlideActivity" />
         <activity
             android:name=".mail.view.HomeActivity"
             android:label="@string/app_name"

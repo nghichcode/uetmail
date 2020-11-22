@@ -1,5 +1,6 @@
 package com.nc.uetmail.mail.session;
 
+import com.google.api.services.gmail.model.ModifyMessageRequest;
 import com.nc.uetmail.mail.database.MailDatabase;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.session.components.MailFolder;
@@ -10,15 +11,12 @@ import com.nc.uetmail.mail.session.components.MailUtils;
 import com.sun.mail.imap.IMAPFolder;
 
 import javax.mail.*;
-import javax.mail.Message.RecipientType;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 public class MailHelper implements HelperCore {
     private MailDatabase database;
@@ -42,42 +40,26 @@ public class MailHelper implements HelperCore {
     }
 
     @Override
-    public String saveMail(FolderModel folderModel, MailModel mailModel) throws Exception {
-        if (folderModel == null || mailModel == null) return "";
-        String ms_uid;
-        try {
-            MimeMessage email = new MimeMessage(Session.getDefaultInstance(new Properties(), null));
-            email.setFlag(MailUtils.callPrivateConstructor(
-                Flags.Flag.class, 0, mailModel.mail_flags_code
-            ), true);
-            email.setSubject(mailModel.mail_subject);
-            email.setFrom(new InternetAddress(mailModel.mail_from));
-            email.setRecipient(RecipientType.TO, new InternetAddress(mailModel.mail_to));
-            email.setRecipients(RecipientType.CC, MailMessage.toAddresses(mailModel.mail_cc));
-            email.setRecipients(RecipientType.BCC, MailMessage.toAddresses(mailModel.mail_bcc));
-            email.setText(mailModel.mail_content_txt);
+    public void seenMail(MailModel mailModel) throws Exception {
+        Flags flags = new Flags(
+            MailUtils.callPrivateConstructor(Flags.Flag.class, 0, mailModel.mail_flags_code)
+        );
+        flags.add(Flags.Flag.SEEN);
+        mailModel.mail_flags_code = flags.hashCode();
+        ModifyMessageRequest request = new ModifyMessageRequest();
+        request.setRemoveLabelIds(Arrays.asList(new String[]{"UNREAD"}));
 
-            IMAPFolder folder = (IMAPFolder) store.getFolder(folderModel.fullName);
-            folder.open(Folder.READ_WRITE);
-            folder.appendMessages(new MimeMessage[]{email});
-            ms_uid = folder.getUID(folder.getMessage(folder.getMessageCount() - 1)) + "";
-            folder.close();
-        } catch (MessagingException e) {
-            throw new Exception(e.toString());
-        }
-        return ms_uid;
+        database.mailDao().update(mailModel);
     }
 
     @Override
     public void sendMail(FolderModel folderModel, MailModel mailModel) throws Exception {
-        mailModel.mail_uid = saveMail(folderModel, mailModel);
         send(folderModel, mailModel, null, false);
     }
 
     @Override
     public void replyMail(FolderModel folderModel, MailModel fromMail, MailModel replyTo,
                           boolean replyAll) throws Exception {
-        fromMail.mail_uid = saveMail(folderModel, fromMail);
         send(folderModel, fromMail, replyTo, replyAll);
     }
 
@@ -95,7 +77,8 @@ public class MailHelper implements HelperCore {
     @Override
     public void trashMail(FolderModel folderModel, MailModel mailModel, boolean untrash) throws Exception {
         if (mailModel == null || mailModel.mail_uid == null) return;
-        mailModel.mail_uid = saveMail(folderModel, mailModel);
+        MimeMessage email = MailMessage.createMailMessage(session.getSession(), mailModel, null, new HashMap<String, String>(), false);
+        mailModel.mail_uid = saveMail(folderModel, email);
         database.mailDao().update(mailModel);
     }
 
@@ -114,10 +97,25 @@ public class MailHelper implements HelperCore {
         database.mailDao().delete(mailModel);
     }
 
+    private String saveMail(FolderModel folderModel, MimeMessage email) throws Exception {
+        if (folderModel == null || email == null) return "";
+        String ms_uid;
+        try {
+            IMAPFolder folder = (IMAPFolder) store.getFolder(folderModel.fullName);
+            folder.open(Folder.READ_WRITE);
+            folder.appendMessages(new MimeMessage[]{email});
+            ms_uid = folder.getUID(folder.getMessage(folder.getMessageCount() - 1)) + "";
+            folder.close();
+        } catch (MessagingException e) {
+            throw new Exception(e.toString());
+        }
+        return ms_uid;
+    }
+
     private void send(FolderModel folderModel, MailModel newMail, MailModel replyMail,
                       boolean replyAll) throws Exception {
         if (newMail == null) return;
-        newMail.mail_flags_code = Flags.Flag.DRAFT.hashCode();
+        newMail.mail_flags_code = new Flags(Flags.Flag.DRAFT).hashCode();
         int newMailId = (int) database.mailDao().insert(newMail);
 
         HashMap<String, String> hm = new HashMap<>();
@@ -129,11 +127,12 @@ public class MailHelper implements HelperCore {
             hm.put("References", newMessage.getMessageID());
             hm.put("In-Reply-To", newMessage.getMessageID());
         }
-        MimeMessage email = MailMessage.createMailMessage(newMail, replyMail, hm, replyAll);
+        MimeMessage email = MailMessage.createMailMessage(session.getSession(), newMail, replyMail, hm, replyAll);
+        if (email==null) throw new Exception("Mail empty.");
         newMail.mail_flags_code = email.getFlags().hashCode();
 
         Transport.send(email);
-        String ms_uid = saveMail(folderModel, newMail);
+        String ms_uid = saveMail(folderModel, email);
         if (ms_uid != null && !ms_uid.isEmpty()) {
             newMail.mail_uid = ms_uid;
             newMail.id = newMailId;
@@ -144,16 +143,16 @@ public class MailHelper implements HelperCore {
 
 
     @Override
-    public void listFolderAndMessage() throws Exception {
+    public void listFolderAndMail() throws Exception {
         Folder folder = store.getDefaultFolder();
         MailFolder mailFolder = new MailFolder(folder);
         List<FolderModel.FolderType> types = new ArrayList<FolderModel.FolderType>(
             Arrays.asList(FolderModel.FolderType.values())
         );
-        listFolderAndMessage(mailFolder, -1, types);
+        listFolderAndMail(mailFolder, -1, types);
     }
 
-    public void listFolderAndMessage(
+    public void listFolderAndMail(
         MailFolder mailFolder, int parent_id, List<FolderModel.FolderType> types
     ) throws Exception {
         int folder_id = -1;
@@ -162,7 +161,7 @@ public class MailHelper implements HelperCore {
             folderModel.user_id = session.getInbox().id;
             folderModel.parent_id = parent_id;
             for (int i = 0; i < types.size(); i++) {
-                if (folderModel.name.matches(types.get(i).regx)) {
+                if (types.get(i).matchType(folderModel.name)) {
                     folderModel.type = types.get(i).name();
                     folderModel.aliasName = types.get(i).name;
                     types.remove(i);
@@ -190,7 +189,7 @@ public class MailHelper implements HelperCore {
         ArrayList<MailFolder> childrenFolders = mailFolder.getChildrenFolders();
         if (childrenFolders != null) {
             for (MailFolder fo : childrenFolders) {
-                listFolderAndMessage(fo, folder_id, types);
+                listFolderAndMail(fo, folder_id, types);
             }
         }
     }

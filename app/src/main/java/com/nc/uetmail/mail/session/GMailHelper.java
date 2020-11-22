@@ -7,13 +7,16 @@ import com.nc.uetmail.mail.database.MailDatabase;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MailModel;
+import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.session.components.MailMessage;
+import com.nc.uetmail.mail.session.components.MailUtils;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
-import com.nc.uetmail.mail.utils.crypt.CryptoUtils;
 
-import org.apache.commons.codec.binary.Base64;
+//import org.apache.commons.codec.binary.Base64;
+import com.google.api.client.util.Base64;
 
 import javax.mail.Flags;
+import javax.mail.Session;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMessage;
 
@@ -25,16 +28,30 @@ import java.util.*;
 public class GMailHelper implements HelperCore {
     private MailDatabase database;
     private Gmail service;
+    private UserModel userModel;
     private final String user = "me";
 
-    public GMailHelper(MailDatabase database, Gmail service) {
+    public GMailHelper(MailDatabase database, Gmail service, UserModel userModel) {
         this.database = database;
         this.service = service;
+        this.userModel = userModel;
+    }
+
+    public String saveMail(FolderModel folderModel, MailModel mailModel) throws Exception {
+        return "";
     }
 
     @Override
-    public String saveMail(FolderModel folderModel, MailModel mailModel) throws Exception {
-        return "";
+    public void seenMail(MailModel mailModel) throws Exception {
+        Flags flags = new Flags(
+            MailUtils.callPrivateConstructor(Flags.Flag.class, 0, mailModel.mail_flags_code)
+        );
+        flags.add(Flags.Flag.SEEN);
+        mailModel.mail_flags_code = flags.hashCode();
+        ModifyMessageRequest request = new ModifyMessageRequest();
+        request.setRemoveLabelIds(Arrays.asList(new String[]{"UNREAD"}));
+        service.users().messages().modify(user, mailModel.mail_uid, request);
+        database.mailDao().update(mailModel);
     }
 
     @Override
@@ -91,11 +108,14 @@ public class GMailHelper implements HelperCore {
                 ? replyTmp.getPayload().getHeaders() : null;
             hm = arrayToMap(hl);
         }
-        MimeMessage email = MailMessage.createMailMessage(newMail, replyMail, hm, replyAll);
+        MimeMessage email = MailMessage.createMailMessage(
+            Session.getDefaultInstance(new Properties()), newMail, replyMail, hm, replyAll
+        );
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         email.writeTo(buffer);
         String encodedEmail = Base64.encodeBase64URLSafeString(buffer.toByteArray());
+//        String encodedEmail = Base64.encodeToString(buffer.toByteArray(),  Base64.URL_SAFE);
         Message sentMs = service.users().messages().send(user, new Message().setRaw(encodedEmail))
             .execute();
         if (sentMs != null && sentMs.getId() != null) {
@@ -109,7 +129,7 @@ public class GMailHelper implements HelperCore {
     }
 
     @Override
-    public void listFolderAndMessage() throws Exception {
+    public void listFolderAndMail() throws Exception {
         List<FolderModel.FolderType> types = new ArrayList<FolderModel.FolderType>(
             Arrays.asList(FolderModel.FolderType.values())
         );
@@ -124,8 +144,8 @@ public class GMailHelper implements HelperCore {
                 if (msgTotal == null) continue;
                 msgUnread = msgUnread == null ? 0 : msgUnread;
                 FolderModel folderModel = new FolderModel(
-                    -1, FolderModel.FolderType.OTHER.name(), label.getName(), label.getId(),
-                    label.getName(), msgUnread, msgTotal, true, -1
+                    userModel.id, FolderModel.FolderType.OTHER.name(), label.getName(),
+                    label.getId(), label.getName(), msgUnread, msgTotal, true, -1
                 );
                 for (int i = 0; i < types.size(); i++) {
                     if (types.get(i).matchType(folderModel.name)) {
@@ -135,23 +155,26 @@ public class GMailHelper implements HelperCore {
                         break;
                     }
                 }
+                System.out.println(folderModel);
+                int folderId = (int) database.folderDao().insert(folderModel);
 
+                if (msgTotal <= 0) continue;
                 ListMessagesResponse messagesResponse = service.users().messages().list(user)
                     .setLabelIds(Arrays.asList(new String[]{label.getId()})).execute();
                 List<Message> messages = messagesResponse.getMessages();
-                if (label.getName().toLowerCase().contains("inbox")) break;
-//                System.out.println(folderModel);
-                int folderId = (int) database.folderDao().insert(folderModel);
                 if (messages == null) continue;
-                for (Message message : messages) listMessage(message, folderId);
+                for (Message message : messages) listMail(message, folderId);
             }
         }
     }
 
-    private void listMessage(Message message, int folderId) throws IOException {
+    private void listMail(Message message, int folderId) throws IOException {
         if (message == null) return;
         Message ms = message.getPayload() != null ? message :
             service.users().messages().get(user, message.getId()).execute();
+        int flags = (ms.getLabelIds() == null || !ms.getLabelIds().contains("UNREAD")) ?
+            new Flags(Flags.Flag.SEEN).hashCode() : 0;
+
         HashMap<String, String> hm = arrayToMap(ms.getPayload().getHeaders());
         SimpleDateFormat fm = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss");
         Date sent_date;
@@ -163,14 +186,16 @@ public class GMailHelper implements HelperCore {
         }
 
         String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
-        MailModel mailModel = new MailModel(-1, folderId, hm.get("Content-Type"),
+        MailModel mailModel = new MailModel(userModel.id, folderId, hm.get("Content-Type"),
             message.getId(), hm.get("Subject"), hm.get("From"), hm.get("To"), hm.get("Cc"),
             hm.get("Bcc"), "", "", false,
-            attachFolder, false, 0, sent_date, null, true);
+            attachFolder, false, flags, sent_date, null, true);
         List<AttachmentModel> attachments = new ArrayList<>();
         List<MessagePart> mp = ms.getPayload().getParts();
-        for (int i = 0; i < mp.size(); i++)
-            writePart(attachments, mailModel, mp.get(i));
+        if (mp != null) {
+            for (int i = 0; i < mp.size(); i++)
+                writePart(attachments, mailModel, mp.get(i));
+        }
         if (attachments.size() > 0) mailModel.mail_has_attachment = true;
 
         database.mailDao().insert(mailModel);
@@ -178,9 +203,9 @@ public class GMailHelper implements HelperCore {
             attachment.message_id = mailModel.id;
             database.attachmentDao().insert(attachment);
         }
-//        System.out.println(mailModel);
-//        for (AttachmentModel attachmentModel : mailMessage.getAttachments())
-//            System.out.println(attachmentModel);
+        System.out.println(mailModel);
+        for (AttachmentModel attachmentModel : attachments)
+            System.out.println(attachmentModel);
     }
 
     private void writePart(List<AttachmentModel> attachments, MailModel mailModel, MessagePart p) throws IOException {
@@ -233,7 +258,7 @@ public class GMailHelper implements HelperCore {
             String attachId = p.getBody() != null ? p.getBody().getAttachmentId() : null;
             String uri = MailAndroidUtils.ROOT_URI + filePath;
             if (html_source && mailModel.mail_content_html != null && !"".equals(mailModel
-            .mail_content_html))
+                .mail_content_html))
                 mailModel.mail_content_html =
                     mailModel.mail_content_html.replaceAll("cid:" + contentID, fileName);
             attachments.add(new AttachmentModel(
@@ -249,7 +274,7 @@ public class GMailHelper implements HelperCore {
                 MessagePartBody partBody = service.users().messages().attachments()
                     .get(user, mailModel.mail_uid, attachId).execute();
                 String data = partBody.getData();
-                if (data == null || data.isEmpty()) return;
+                if ((null == data) || data.isEmpty()) return;
                 byte[] decoder = Base64.decodeBase64(data);
                 fo.write(decoder);
                 fo.close();

@@ -2,24 +2,31 @@ package com.nc.uetmail.mail.view;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,12 +37,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nc.uetmail.R;
-import com.nc.uetmail.mail.adapters.MessageRecyclerAdapter;
+import com.nc.uetmail.mail.adapters.FolderRecyclerAdapter;
+import com.nc.uetmail.mail.adapters.MailRecyclerAdapter;
 import com.nc.uetmail.mail.adapters.UserMailRecyclerAdapter;
+import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.utils.touch_helper.HomeTouchCallback;
 import com.nc.uetmail.mail.utils.touch_helper.HomeTouchCallback.SwipeInterface;
+import com.nc.uetmail.mail.viewmodel.FolderViewModel;
 import com.nc.uetmail.mail.viewmodel.MasterViewModel;
 import com.nc.uetmail.mail.viewmodel.MailViewModel;
 import com.nc.uetmail.mail.viewmodel.UserViewModel;
@@ -45,16 +55,23 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     public static final String EXTRA_CONFIG_UID = "com.nc.uetmail.mail.EXTRA_CONFIG_UID";
     public static final String EXTRA_MESSAGE_ID = "com.nc.uetmail.mail.EXTRA_MESSAGE_ID";
+    public static final String EXTRA_MESSAGE_POS = "com.nc.uetmail.mail.EXTRA_MESSAGE_POS";
     public static final int REQUEST_CONFIG = 1;
     public static final int REQUEST_CONFIG_GG = 2;
     public static final int REQUEST_COMPOSE = 3;
     public static final int REQUEST_MESSAGE = 4;
 
     private MasterViewModel masterViewModel;
+    private FolderViewModel folderViewModel;
     private MailViewModel mailViewModel;
     private UserViewModel userViewModel;
-    private MessageRecyclerAdapter messageAdapter;
+    private FolderRecyclerAdapter folderAdapter;
+    private MailRecyclerAdapter messageAdapter;
     private UserMailRecyclerAdapter userMailAdapter;
+    private RecyclerView rvListEmail;
+    private RecyclerView rvListFolder;
+
+    private LinearLayout llFolderGroup;
 
     private DrawerLayout drawer;
     private TextView tvNavUser;
@@ -62,10 +79,9 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
     private ImageButton btnNavExpand;
     private LinearLayout btnNavUserGroup;
 
-    AlertDialog alertDialog;
-
-    HomeTouchCallback mailTouch;
-    HomeTouchCallback userTouch;
+    private AlertDialog alertDialog;
+    private HomeTouchCallback mailTouch;
+    private HomeTouchCallback userTouch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +99,15 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             }
         });
 
+        // Folder Group
+        llFolderGroup = findViewById(R.id.mail_row_folder_back_group);
+        llFolderGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFolder(true);
+                llFolderGroup.setVisibility(View.GONE);
+            }
+        });
         drawer = findViewById(R.id.mail_drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open,
@@ -91,9 +116,12 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.mail_nav_drawer);
         navigationView.setNavigationItemSelectedListener(this);
-
+        navigationView.getMenu().getItem(0).setChecked(true);
+        // Init recycle view
         View headerView = navigationView.getHeaderView(0);
-        RecyclerView rvListEmail = findViewById(R.id.mail_home_list_email);
+        rvListEmail = findViewById(R.id.mail_home_list_email);
+        rvListFolder = findViewById(R.id.mail_home_list_folder);
+        // Init Message
         rvListEmail.setLayoutManager(new LinearLayoutManager(this));
         rvListEmail.setHasFixedSize(true);
         rvListEmail.addItemDecoration(
@@ -101,18 +129,49 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
                 DividerItemDecoration.VERTICAL)
         );
 
-        messageAdapter = new MessageRecyclerAdapter();
-        messageAdapter.setOnItemClickListener(new MessageRecyclerAdapter.OnItemClickListener() {
+        messageAdapter = new MailRecyclerAdapter();
+        messageAdapter.setOnItemClickListener(new MailRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(MailModel model) {
-                showMessageActivity(model);
+            public void onItemClick(MailModel model, int position) {
+                showMessageActivity(model, position);
             }
         });
         new ItemTouchHelper(mailTouch).attachToRecyclerView(rvListEmail);
         rvListEmail.setAdapter(messageAdapter);
 
+        // Init Folder
+        rvListFolder.setLayoutManager(new LinearLayoutManager(this));
+        rvListFolder.setHasFixedSize(true);
+        rvListFolder.addItemDecoration(
+            new DividerItemDecoration(rvListFolder.getContext(),
+                DividerItemDecoration.VERTICAL)
+        );
+
+        folderAdapter = new FolderRecyclerAdapter();
+        folderAdapter.setOnItemClickListener(new FolderRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(FolderModel model) {
+                masterViewModel.setActiveFolderId(model.id);
+                showFolder(false);
+                llFolderGroup.setVisibility(View.VISIBLE);
+            }
+        });
+        rvListFolder.setAdapter(folderAdapter);
+        // Init VM
+        masterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
+        masterViewModel.setActiveFolder(FolderModel.FolderType.INBOX.name());
+        showFolder(false);
+        llFolderGroup.setVisibility(View.GONE);
+        folderViewModel = ViewModelProviders.of(this).get(FolderViewModel.class);
+        folderViewModel.getActiveFolders(FolderModel.FolderType.OTHER.name()).observe(this,
+            new Observer<List<FolderModel>>() {
+                @Override
+                public void onChanged(List<FolderModel> folderModels) {
+                    folderAdapter.setModels(folderModels);
+                }
+            });
         mailViewModel = ViewModelProviders.of(this).get(MailViewModel.class);
-        mailViewModel.getMessages().observe(this, new Observer<List<MailModel>>() {
+        mailViewModel.getLiveMailByActiveFolderId().observe(this, new Observer<List<MailModel>>() {
             @Override
             public void onChanged(@Nullable List<MailModel> mailModels) {
                 messageAdapter.setMessages(mailModels);
@@ -126,7 +185,6 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         btnNavExpand.setOnClickListener(onClickExpand);
         btnNavUserGroup.setOnClickListener(onClickExpand);
 
-        masterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
         userMailAdapter = new UserMailRecyclerAdapter();
         userMailAdapter.setOnItemClickListener(new UserMailRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -177,8 +235,7 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
                 if (userModel == null) {
                     tvNavUser.setText(R.string.mail_row_empty_user);
                     tvNavEmail.setText(R.string.mail_row_empty_user_hint);
-                }
-                else {
+                } else {
                     userModel.nullToEmpty();
                     tvNavUser.setText(userModel.user);
                     tvNavEmail.setText(userModel.email);
@@ -206,9 +263,10 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         startActivityForResult(configIntent, REQUEST_COMPOSE);
     }
 
-    public void showMessageActivity(MailModel model) {
-        Intent intent = new Intent(this, MessageActivity.class);
+    public void showMessageActivity(MailModel model, int position) {
+        Intent intent = new Intent(this, MessageSlideActivity.class);
         intent.putExtra(EXTRA_MESSAGE_ID, model.id);
+        intent.putExtra(EXTRA_MESSAGE_POS, position);
         startActivityForResult(intent, REQUEST_MESSAGE);
     }
 
@@ -256,12 +314,46 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
             0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
     }
 
+    private void showFolder(boolean showFolder) {
+        rvListFolder.setVisibility(showFolder ? View.VISIBLE : View.GONE);
+        rvListEmail.setVisibility(showFolder ? View.GONE : View.VISIBLE);
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        boolean showFolder = false;
         switch (item.getItemId()) {
             case R.id.mail_home_nav_inbox:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.INBOX.name());
+                break;
+            case R.id.mail_home_nav_archive:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.ARCHIVE.name());
+                break;
+            case R.id.mail_home_nav_drafts:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.DRAFTS.name());
+                break;
+            case R.id.mail_home_nav_sent:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.SENT.name());
+                break;
+            case R.id.mail_home_nav_trash:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.TRASH.name());
+                break;
+            case R.id.mail_home_nav_spam:
+                masterViewModel.setActiveFolder(FolderModel.FolderType.SPAM.name());
+                break;
+            case R.id.mail_home_nav_other:
+                masterViewModel.setActiveFolderId(-1);
+                showFolder = true;
+                break;
+            case R.id.mail_home_nav_about:
+                new AlertDialog.Builder(this)
+                    .setTitle(R.string.mail_about_title)
+                    .setMessage(R.string.mail_about_body)
+                    .create().show();
                 break;
         }
+        showFolder(showFolder);
+        llFolderGroup.setVisibility(View.GONE);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -293,6 +385,10 @@ public class HomeActivity extends AppCompatActivity implements OnNavigationItemS
         switch (item.getItemId()) {
             case R.id.mail_home_menu_btn_sync:
                 mailViewModel.syncMail();
+                showToast(getResources().getString(R.string.mail_sync_start));
+                break;
+            case R.id.mail_home_menu_btn_delete_all:
+                mailViewModel.deleteEmptyActiveUserMs();
                 showToast(getResources().getString(R.string.mail_sync_start));
                 break;
         }

@@ -7,6 +7,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
+import com.nc.uetmail.mail.adapters.AttachRecyclerAdapter.AttachHolder;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 
 import java.util.ArrayList;
@@ -15,16 +16,16 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class AttachRecyclerAdapter extends RecyclerView.Adapter<AttachRecyclerAdapter.MessageHolder> {
+public class AttachRecyclerAdapter extends RecyclerView.Adapter<AttachHolder> {
     private List<AttachmentModel> attachments = new ArrayList<>();
     private OnItemClickListener listener;
 
-    class MessageHolder extends RecyclerView.ViewHolder {
+    class AttachHolder extends RecyclerView.ViewHolder {
         private TextView tvAttachName;
         private TextView tvAttachSize;
         private RelativeLayout tvAttachDownload;
 
-        public MessageHolder(@NonNull final View itemView) {
+        public AttachHolder(@NonNull final View itemView) {
             super(itemView);
             tvAttachName = itemView.findViewById(R.id.mail_message_attach_name);
             tvAttachSize = itemView.findViewById(R.id.mail_message_attach_size);
@@ -52,14 +53,14 @@ public class AttachRecyclerAdapter extends RecyclerView.Adapter<AttachRecyclerAd
 
     @NonNull
     @Override
-    public MessageHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public AttachHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
-            .inflate(R.layout.mail_home_row_message, viewGroup, false);
-        return new MessageHolder(view);
+            .inflate(R.layout.mail_home_row_attach, viewGroup, false);
+        return new AttachHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageHolder noteHolder, int position) {
+    public void onBindViewHolder(@NonNull AttachHolder noteHolder, int position) {
         AttachmentModel attachment = attachments.get(position);
         attachment.nullToEmpty();
         noteHolder.tvAttachName.setText(attachment.name);

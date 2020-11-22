@@ -113,6 +113,16 @@
         <item name="android:textColor">@color/colorWhite</item>
     </style>
 
+    <style name="MailComponents.DateLabel">
+        <item name="android:paddingTop">@dimen/size_6</item>
+        <item name="android:paddingBottom">@dimen/size_6</item>
+        <item name="android:paddingRight">@dimen/size_10</item>
+        <item name="android:paddingLeft">@dimen/size_10</item>
+        <item name="android:background">@drawable/mail_btn_rounded_danger</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
     <style name="MailComponents.TextInputLayout" />
 
     <style name="MailComponents.TextInputLayout.Parent">

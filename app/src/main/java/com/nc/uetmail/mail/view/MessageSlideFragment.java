@@ -2,16 +2,15 @@ package com.nc.uetmail.mail.view;
 
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nc.uetmail.R;
@@ -27,56 +26,52 @@ import java.io.File;
 import java.util.List;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MessageActivity extends AppCompatActivity {
+public class MessageSlideFragment extends Fragment {
+    private MailModel model;
 
     private AttachRecyclerAdapter attachAdapter;
     private AttachViewModel attachVM;
-    private MailViewModel mailVM;
 
     private TextView tvSubject;
     private TextView ivIconLetter;
     private TextView tvFrom;
     private TextView tvSentDate;
     private TextView tvTo;
+    private LinearLayout llCc;
     private TextView tvCc;
     private RecyclerView rvListAttach;
     private WebView wvMessage;
     private TextView tvMessage;
 
+    public MessageSlideFragment(MailModel model) {
+        this.model = model;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.mail_message_activity);
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setBackgroundDrawable(
-                new ColorDrawable(getResources().getColor(R.color.colorDanger))
-            );
-            supportActionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    public View onCreateView(
+        LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState
+    ) {
+        ViewGroup rootView = (ViewGroup) inflater.inflate(
+            R.layout.mail_message_slide_page, container, false
+        );
 
-        Intent intent = getIntent();
-        int msid = 0;
-        if (intent.hasExtra(HomeActivity.EXTRA_MESSAGE_ID)) {
-            msid = intent.getIntExtra(HomeActivity.EXTRA_MESSAGE_ID, 0);
-        }
-
-        tvSubject = findViewById(R.id.mail_message_subject);
-        ivIconLetter = findViewById(R.id.mail_message_icon_letter);
-        tvFrom = findViewById(R.id.mail_message_from);
-        tvSentDate = findViewById(R.id.mail_message_sent_date);
-        tvTo = findViewById(R.id.mail_message_to);
-        tvCc = findViewById(R.id.mail_message_cc);
-        wvMessage = findViewById(R.id.mail_message_wv);
-        tvMessage = findViewById(R.id.mail_message_tv);
+        tvSubject = rootView.findViewById(R.id.mail_message_subject);
+        ivIconLetter = rootView.findViewById(R.id.mail_message_icon_letter);
+        tvFrom = rootView.findViewById(R.id.mail_message_from);
+        tvSentDate = rootView.findViewById(R.id.mail_message_sent_date);
+        tvTo = rootView.findViewById(R.id.mail_message_to);
+        llCc = rootView.findViewById(R.id.mail_message_cc_group);
+        tvCc = rootView.findViewById(R.id.mail_message_cc);
+        wvMessage = rootView.findViewById(R.id.mail_message_wv);
+        tvMessage = rootView.findViewById(R.id.mail_message_tv);
 
         WebSettings webSettings = wvMessage.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -84,9 +79,13 @@ public class MessageActivity extends AppCompatActivity {
         webSettings.setAllowFileAccessFromFileURLs(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
 
-        rvListAttach = findViewById(R.id.mail_message_list_attach);
-        rvListAttach.setLayoutManager(new LinearLayoutManager(this));
+        rvListAttach = rootView.findViewById(R.id.mail_message_list_attach);
+        rvListAttach.setLayoutManager(new LinearLayoutManager(getContext()));
         rvListAttach.setHasFixedSize(true);
+        rvListAttach.addItemDecoration(
+            new DividerItemDecoration(rvListAttach.getContext(),
+                DividerItemDecoration.VERTICAL)
+        );
 
         attachAdapter = new AttachRecyclerAdapter();
         attachAdapter.setOnItemClickListener(new AttachRecyclerAdapter.OnItemClickListener() {
@@ -98,33 +97,16 @@ public class MessageActivity extends AppCompatActivity {
         rvListAttach.setAdapter(attachAdapter);
 
         attachVM = ViewModelProviders.of(this).get(AttachViewModel.class);
-        attachVM.getByMessageId(msid).observe(this, new Observer<List<AttachmentModel>>() {
-            @Override
-            public void onChanged(@Nullable List<AttachmentModel> models) {
-                attachAdapter.setAttachments(models);
-            }
-        });
+        attachVM.getByMessageId(model.id).observe(this,
+            new Observer<List<AttachmentModel>>() {
+                @Override
+                public void onChanged(@Nullable List<AttachmentModel> models) {
+                    attachAdapter.setAttachments(models);
+                }
+            });
+        loadMessage(model);
 
-        mailVM = ViewModelProviders.of(this).get(MailViewModel.class);
-        mailVM.getByMessageId(msid).observe(this, new Observer<MailModel>() {
-            @Override
-            public void onChanged(@Nullable MailModel model) {
-                loadMessage(model);
-            }
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.mail_config_menu_btn_next:
-//                onNextPressed();
-                break;
-            case android.R.id.home:
-                onBackPressed();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+        return rootView;
     }
 
     private void openAttachFile(AttachmentModel model) {
@@ -134,14 +116,14 @@ public class MessageActivity extends AppCompatActivity {
 
         Intent it = new Intent(Intent.ACTION_VIEW);
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            mimeType = getContentResolver().getType(uri);
+            mimeType = getContext().getContentResolver().getType(uri);
         } else {
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                 MimeTypeMap.getFileExtensionFromUrl(uri.toString()).toLowerCase()
             );
         }
         if (mimeType == null || "".equals(mimeType.trim())) {
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(getContext())
                 .setTitle(R.string.mail_title_danger)
                 .setMessage(R.string.mail_attach_invalid)
                 .show();
@@ -161,6 +143,7 @@ public class MessageActivity extends AppCompatActivity {
         ivIconLetter.setText(model.getFirstUserLetter());
         tvFrom.setText(MailMessage.toAddressString(model.mail_from));
         tvTo.setText(MailMessage.toAddressString(model.mail_to));
+        llCc.setVisibility(model.mail_cc.isEmpty() ? View.GONE : View.VISIBLE);
         tvCc.setText(MailMessage.toAddressString(model.mail_cc));
 
         if ("".equals(model.mail_content_html)) {
@@ -177,6 +160,5 @@ public class MessageActivity extends AppCompatActivity {
             );
         }
     }
-
 
 }

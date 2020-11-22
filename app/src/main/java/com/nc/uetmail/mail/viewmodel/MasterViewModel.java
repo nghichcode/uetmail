@@ -1,6 +1,7 @@
 package com.nc.uetmail.mail.viewmodel;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.annotation.NonNull;
 
@@ -16,17 +17,27 @@ public class MasterViewModel extends AndroidViewModel {
         repository = new MasterRepository(application);
     }
 
-    public void insert(MasterModel model){
+    public void insert(MasterModel model) {
         repository.insert(model);
     }
-    public void update(MasterModel model){
+
+    public void update(MasterModel model) {
         repository.update(model);
     }
-    public void delete(MasterModel model){
+
+    public void delete(MasterModel model) {
         repository.delete(model);
     }
 
-    public void setActiveUser(UserModel model){
+    public void setActiveUser(UserModel model) {
         repository.setActiveUser(model.id);
+    }
+
+    public void setActiveFolder(String type) {
+        repository.setActiveFolder(type);
+    }
+
+    public void setActiveFolderId(int id) {
+        repository.setActiveFolderId(id);
     }
 }

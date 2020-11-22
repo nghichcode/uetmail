@@ -6,14 +6,17 @@ import com.nc.uetmail.mail.async.AsyncTaskWithCallback.CallbackInterface;
 import com.nc.uetmail.mail.async.AsyncTaskWithCallback.AsyncCallback;
 import com.nc.uetmail.mail.database.MailDatabase;
 import com.nc.uetmail.mail.database.daos.MailMasterDao;
+import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MasterModel;
+import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.utils.crypt.CryptorAesCbc;
 
 public class MasterRepository {
+    private MailDatabase database;
     private MailMasterDao repo_dao;
 
     public MasterRepository(Context context) {
-        MailDatabase database = MailDatabase.getInstance(context);
+        database = MailDatabase.getInstance(context);
         repo_dao = database.mailMasterDao();
     }
 
@@ -58,6 +61,27 @@ public class MasterRepository {
             @Override
             public void call() {
                 repo_dao.setActiveUser(uid);
+            }
+        }).execute();
+    }
+
+    public void setActiveFolder(final String type) {
+        new AsyncCallback(new CallbackInterface() {
+            @Override
+            public void call() {
+                UserModel userModel = database.userDao().getActiveInbUser();
+                if (userModel == null) return;
+                FolderModel folderModel = database.folderDao().getByUidAndType(userModel.id, type);
+                repo_dao.setActiveFolder(folderModel == null ? -1 : folderModel.id);
+            }
+        }).execute();
+    }
+
+    public void setActiveFolderId(final int id) {
+        new AsyncCallback(new CallbackInterface() {
+            @Override
+            public void call() {
+                repo_dao.setActiveFolder(id);
             }
         }).execute();
     }

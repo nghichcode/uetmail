@@ -17,12 +17,12 @@ import com.nc.uetmail.mail.utils.crypt.CryptorAesCbc.CryptData;
 import java.util.List;
 
 public class UserRepository {
+    private MailDatabase database;
     private UserDao userDao;
-
     private MailMasterDao masterDao;
 
     public UserRepository(Context context) {
-        MailDatabase database = MailDatabase.getInstance(context);
+        database = MailDatabase.getInstance(context);
         userDao = database.userDao();
         masterDao = database.mailMasterDao();
 
@@ -56,19 +56,14 @@ public class UserRepository {
         new AsyncCallback(new CallbackInterface() {
             @Override
             public void call() {
+                database.mailDao().deleteByUid(user.id);
+                database.folderDao().deleteByUid(user.id);
                 userDao.deleteById(user.id);
                 UserModel tmp = userDao.getLastInbUser();
-                if (tmp != null && tmp.id > 0) masterDao.setActiveUserIfNull(user.id, tmp.id);
+                if (tmp != null && tmp.id > 0) {
+                    masterDao.setActiveUserIfNull(user.id, tmp.id);
+                }
                 else masterDao.setActiveUserIfNull(user.id, 0);
-            }
-        }).execute();
-    }
-
-    public void deleteById(final int id) {
-        new AsyncCallback(new CallbackInterface() {
-            @Override
-            public void call() {
-                userDao.deleteById(id);
             }
         }).execute();
     }

@@ -27,6 +27,10 @@ public class MailViewModel extends AndroidViewModel {
         repository.update(message);
     }
 
+    public void deleteEmptyActiveUserMs() {
+        repository.deleteEmptyActiveUserMs();
+    }
+
     public void delete(MailModel message) {
         repository.delete(message);
     }
@@ -35,11 +39,20 @@ public class MailViewModel extends AndroidViewModel {
         repository.syncMail();
     }
 
+    public void sendMail(final MailModel mailModel) {
+        repository.sendMail(mailModel);
+    }
+
     public LiveData<MailModel> getByMessageId(int msid) {
-        return repository.getByMessageId(msid);
+        return repository.getByMailId(msid);
     }
 
     public LiveData<List<MailModel>> getMessages() {
-        return repository.getMessages();
+        return repository.getMails();
     }
+
+    public LiveData<List<MailModel>> getLiveMailByActiveFolderId() {
+        return repository.getLiveMailByActiveFolderId();
+    }
+
 }

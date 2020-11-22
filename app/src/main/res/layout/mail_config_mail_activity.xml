@@ -80,8 +80,8 @@
                 style="@style/MailComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/mail_config_pass_hint"
-                android:hint="@string/mail_config_pass_hint"
+                android:autofillHints="@string/mail_config_pass"
+                android:hint="@string/mail_config_pass"
                 android:inputType="textPassword" />
 
             <TextView
@@ -151,8 +151,8 @@
                 style="@style/MailComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/mail_config_port_hint"
-                android:hint="@string/mail_config_port_hint"
+                android:autofillHints="@string/mail_config_port"
+                android:hint="@string/mail_config_port"
                 android:inputType="text" />
 
             <TextView
@@ -278,8 +278,8 @@
                 style="@style/MailComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/mail_config_port_hint"
-                android:hint="@string/mail_config_port_hint"
+                android:autofillHints="@string/mail_config_port"
+                android:hint="@string/mail_config_port"
                 android:inputType="text" />
 
             <TextView

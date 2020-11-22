@@ -4,7 +4,9 @@ import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 
 public interface HelperCore {
-    String saveMail(FolderModel folderModel, MailModel mailModel) throws Exception;
+//    String saveMail(FolderModel folderModel, MailModel mailModel) throws Exception;
+
+    void seenMail(MailModel mailModel) throws Exception;
 
     void sendMail(FolderModel folderModel, MailModel mailModel) throws Exception;
 
@@ -18,6 +20,6 @@ public interface HelperCore {
 
     void deleteMail(MailModel mailModel) throws Exception;
 
-    void listFolderAndMessage() throws Exception;
+    void listFolderAndMail() throws Exception;
 
 }

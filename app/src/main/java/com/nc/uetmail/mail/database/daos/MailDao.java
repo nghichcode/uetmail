@@ -26,14 +26,30 @@ public interface MailDao {
     @Delete
     void delete(MailModel mailModel);
 
+    @Query("DELETE FROM mail_table WHERE user_id=:uid")
+    void deleteByUid(int uid);
+
     @Query("SELECT * FROM mail_table WHERE id=:msid LIMIT 1")
-    LiveData<MailModel> getByMessageId(int msid);
+    LiveData<MailModel> getByMailId(int msid);
 
     @Query("SELECT * FROM mail_table")
     LiveData<List<MailModel>> getAll();
 
-    @Query("SELECT * FROM mail_table WHERE folder_id=:folderId")
-    LiveData<List<MailModel>> getMailByFolderId(int folderId);
+//    @Query(
+//        "SELECT m.* FROM mail_user_table u " +
+//        "JOIN mail_folder_table f ON u.id=:uid AND f.user_id=u.id " +
+//        "JOIN mail_table m ON f.id=m.folder_id WHERE 1"
+//    )
+//    LiveData<List<MailModel>> getMessagesInFolder(int uid);
+
+    @Query("SELECT * FROM mail_table WHERE folder_id=:folderId ORDER BY mail_sent_date DESC")
+    List<MailModel> getMailByFolderId(int folderId);
+
+    @Query("SELECT m.* FROM mail_master_table ms JOIN mail_table m ON ms.active_folder_id=m.folder_id ORDER BY mail_sent_date DESC")
+    LiveData<List<MailModel>> getLiveMailByActiveFolderId();
+
+    @Query("SELECT m.* FROM mail_master_table ms JOIN mail_table m ON ms.active_folder_id=m.folder_id")
+    List<MailModel> getMailByActiveFolderId();
 
 //    @Query("SELECT m.* FROM mail_user_table u JOIN mail_folder_table f ON u.id=:uid AND f.user_id=u.id JOIN mail_table m ON f.id=m.folder_id WHERE 1")
 //    LiveData<List<MailModel>> getMailByFolderType(int uid, String type);

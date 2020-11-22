@@ -10,6 +10,7 @@ import com.nc.uetmail.mail.session.components.MailMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
@@ -79,9 +80,9 @@ public class MailModel extends BaseTimeModel {
         Address[] from = MailMessage.toAddresses(mail_from);
         String letter = "";
         if (from != null && from.length > 0)
-            letter = ((InternetAddress) from[0]).getPersonal().trim();
+            letter = ((InternetAddress) from[0]).getPersonal();
 
-        return letter.equals("") ? "?" : (letter.toUpperCase().charAt(0) + "");
+        return letter == null || letter.trim().equals("") ? "?" : (letter.toUpperCase().charAt(0) + "");
     }
 
     public String getShortSubject() {
@@ -107,10 +108,30 @@ public class MailModel extends BaseTimeModel {
 
     public MailModel clone() {
         return new MailModel(
-            user_id, folder_id, content_type, mail_uid, mail_subject, mail_from, mail_to, mail_cc
-            , mail_bcc, mail_content_txt, mail_content_html, mail_has_attachment, attachments_folder,
+            user_id, folder_id, content_type, mail_uid, mail_subject, mail_from, mail_to, mail_cc,
+            mail_bcc, mail_content_txt, mail_content_html, mail_has_attachment, attachments_folder,
             mail_has_html_source, mail_flags_code, mail_sent_date, mail_received_date, sync
         );
+    }
+
+    @Override
+    protected String[] requireFields() {
+        return new String[]{
+            "folder_id", "mail_subject", "mail_from", "mail_to", "mail_content_txt", "incoming"
+        };
+    }
+
+    public HashSet<String> validate() {
+        HashSet<String> errors = super.validate();
+        if (errors.size() > 0) return errors;
+        if (mail_to != null && !mail_to.isEmpty() && MailMessage.toAddresses(mail_to).length < 1)
+            errors.add("mail_to");
+        if (mail_cc != null && !mail_cc.isEmpty() && MailMessage.toAddresses(mail_cc).length < 1)
+            errors.add("mail_cc");
+        if (mail_bcc != null && !mail_bcc.isEmpty() && MailMessage.toAddresses(mail_bcc).length < 1)
+            errors.add("mail_bcc");
+
+        return errors;
     }
 
     @Override

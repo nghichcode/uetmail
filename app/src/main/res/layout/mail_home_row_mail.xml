@@ -33,44 +33,60 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/mail_row_user"
-                    style="@style/MailComponents.h4"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mail_row_user"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/mail_row_title"
-                    style="@style/MailComponents.h4.info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mail_row_title" />
-
-                <TextView
-                    android:id="@+id/mail_row_body_txt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mail_row_body_txt" />
-            </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/mail_row_user"
+                style="@style/MailComponents.h4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_row_users"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/mail_row_title"
+                style="@style/MailComponents.h4.info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_row_title" />
+
+            <TextView
+                android:id="@+id/mail_row_body_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mail_row_body_txt" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center|start"
+            android:orientation="horizontal">
+            <TextView
                 android:id="@+id/mail_row_date"
-                style="@style/MailComponents.AlignTopRight.DateLabel"
+                style="@style/MailComponents.DateLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mail_row_date" />
-
-        </RelativeLayout>
+            <ImageView
+                android:id="@+id/mail_row_has_attach"
+                android:layout_marginHorizontal="@dimen/size_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_attach_file"
+                android:rotation="90"
+                android:contentDescription="@string/mail_attachment" />
+            <ImageView
+                android:id="@+id/mail_row_seen"
+                android:layout_marginHorizontal="@dimen/size_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mail_outline"
+                android:contentDescription="@string/mail_config_email" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

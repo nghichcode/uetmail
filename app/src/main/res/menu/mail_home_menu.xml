@@ -7,4 +7,10 @@
         android:iconTint="@color/colorWhite"
         android:title="@string/mail_sync"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mail_home_menu_btn_delete_all"
+        android:icon="@drawable/ic_delete"
+        android:iconTint="@color/colorWhite"
+        android:title="@string/mail_delete_local"
+        app:showAsAction="ifRoom" />
 </menu>

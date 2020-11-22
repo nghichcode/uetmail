@@ -1,8 +1,14 @@
 package com.nc.uetmail.mail.view;
 
 import android.graphics.drawable.ColorDrawable;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,9 +19,13 @@ import android.widget.TextView;
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
+import com.nc.uetmail.mail.viewmodel.MailViewModel;
+
+import java.util.List;
 
 public class ComposeMailActivity extends AppCompatActivity {
     private boolean isShowAdvance = true;
+    private MailViewModel mailViewModel;
 
     private ImageButton btnComposeExpand;
     private TextView tvComposeTo;
@@ -50,13 +60,14 @@ public class ComposeMailActivity extends AppCompatActivity {
         tvComposeSubject = findViewById(R.id.mail_compose_subject);
         tvComposeTxt = findViewById(R.id.mail_compose_txt);
         showAdvance();
+        mailViewModel = ViewModelProviders.of(this).get(MailViewModel.class);
     }
 
     private void showAdvance() {
         tvComposeCC.setVisibility(isShowAdvance ? View.GONE : View.VISIBLE);
         tvComposeBCC.setVisibility(isShowAdvance ? View.GONE : View.VISIBLE);
         btnComposeExpand.setImageResource(
-            isShowAdvance ? R.drawable.ic_expand_less : R.drawable.ic_expand_more
+            isShowAdvance ? R.drawable.ic_expand_more : R.drawable.ic_expand_less
         );
         isShowAdvance = !isShowAdvance;
     }
@@ -68,6 +79,14 @@ public class ComposeMailActivity extends AppCompatActivity {
         model.mail_bcc = tvComposeBCC.getText().toString();
         model.mail_subject = tvComposeSubject.getText().toString();
         model.mail_content_txt = tvComposeTxt.getText().toString();
+        if (model.validate().size()>0) {
+            new AlertDialog.Builder(this)
+                .setTitle(R.string.mail_title_warning)
+                .setMessage(R.string.mail_input_require_invalid)
+                .show();
+            return;
+        }
+        mailViewModel.sendMail(model);
 
         MailAndroidUtils.showCtxToast(this, R.string.mail_sending);
         setResult(RESULT_OK);

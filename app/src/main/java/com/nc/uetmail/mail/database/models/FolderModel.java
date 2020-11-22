@@ -1,14 +1,15 @@
 package com.nc.uetmail.mail.database.models;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "mail_folder_table")
 public class FolderModel extends BaseTimeModel {
     public enum FolderType {
         INBOX((byte) 1, "Inbox", "inbox"), DRAFTS((byte) 2, "Drafts", "draft"),
-        SENT((byte) 3, "Sent", "sent"), SPAM((byte) 4, "Spam", "spam|junk"),
-        TRASH((byte) 5, "Trash", "trash|bin"), ARCHIVE((byte) 6, "Archive", "archive"),
+        SENT((byte) 3, "Sent", "sen"), SPAM((byte) 4, "Spam", "spam|junk"),
+        TRASH((byte) 5, "Trash", "trash|bin|delete"), ARCHIVE((byte) 6, "Archive", "archive"),
         OTHER((byte) -1, "Other", "");
 
         public final byte id;
@@ -27,7 +28,7 @@ public class FolderModel extends BaseTimeModel {
 
         public boolean matchType(String str) {
             if (str == null || str.trim().length() == 0) return false;
-            return str.matches("(?i).*"+regx);
+            return str.matches("(?i).*" + regx + ".*");
         }
     }
 
@@ -43,6 +44,10 @@ public class FolderModel extends BaseTimeModel {
     public int message_count;
     public boolean sync;
     public int parent_id;
+
+    @Ignore
+    public FolderModel() {
+    }
 
     public FolderModel(final int user_id, final String type, final String name,
                        final String fullName, final String aliasName,
