@@ -27,6 +27,9 @@ public interface AttachmentDao {
     @Delete
     void delete(AttachmentModel attachmentModel);
 
+    @Query("DELETE FROM mail_attachment_table WHERE user_id=:uid")
+    void deleteByUid(int uid);
+
     @Query("SELECT * FROM mail_attachment_table WHERE message_id=:msid AND html_source!=1")
     LiveData<List<AttachmentModel>> getByMessageId(int msid);
 

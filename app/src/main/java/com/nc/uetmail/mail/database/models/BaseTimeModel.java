@@ -18,8 +18,7 @@ class BaseTimeModel extends BaseModel {
         updated_at = now;
     }
 
-    public void updateCreatedAt() {
-        Date now = new Date();
-        created_at = now;
+    public void updateTime() {
+        updated_at = new Date();
     }
 }

@@ -102,7 +102,7 @@ public class MailModel extends BaseTimeModel {
 
     public String getFormatSentDate() {
         if (mail_sent_date == null) return "";
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss dd/MM/yyyy");
         return format.format(mail_sent_date);
     }
 

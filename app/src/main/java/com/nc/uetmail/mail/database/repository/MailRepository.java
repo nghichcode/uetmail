@@ -1,5 +1,7 @@
 package com.nc.uetmail.mail.database.repository;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -28,9 +30,11 @@ import com.nc.uetmail.mail.session.MailHelper;
 import com.nc.uetmail.mail.session.MailSession;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class MailRepository {
+    public static final int NOTIFICATION_ID = 98989898;
     private MailDatabase mailDatabase;
     private MailDao repo_dao;
     private Context context;
@@ -96,12 +100,20 @@ public class MailRepository {
         }).execute();
     }
 
-    private HelperCore getMailHelper() {
+    private HelperCore getMailHelper() throws Exception {
         MailMasterDao masterDao = mailDatabase.mailMasterDao();
         UserDao userDao = mailDatabase.userDao();
         UserModel activeInbUser = userDao.getActiveInbUser();
         UserModel activeOubUser = userDao.getActiveOubUser();
-        if (activeInbUser == null || activeOubUser == null) return null;
+        if (activeInbUser == null || activeOubUser == null) {
+            throw new Exception("");
+        }
+        if (activeInbUser.updated_at != null
+            && new Date().getTime() - activeInbUser.updated_at.getTime() > 300000
+        )
+            return null;
+        activeInbUser.updateTime();
+        userDao.update(activeInbUser);
         if (UserModel.MailProtocol.GMAIL.eq(activeInbUser.protocol)) {
             HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
             GoogleAccountCredential credential = GoogleAccountCredential
@@ -121,33 +133,74 @@ public class MailRepository {
                 return new MailHelper(mailDatabase, ms);
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                throw new Exception(e.toString());
             }
         }
     }
 
     public void syncMail() {
-        new AsyncTaskWithCallback.AsyncCallback(new AsyncTaskWithCallback.CallbackInterface() {
-            @Override
-            public void call() {
-                HelperCore helperCore = getMailHelper();
-                if (helperCore == null) return;
-                try {
-                    helperCore.listFolderAndMail();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(NOTIFICATION_ID,
+            new NotificationCompat.Builder(context, context.getString(R.string.app_id))
+                .setSmallIcon(R.mipmap.mail_icon)
+                .setContentTitle(context.getString(R.string.mail_title_info))
+                .setContentText(context.getString(R.string.mail_sync_start))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build()
+        );
+        new SyncMailTask(context, this).execute();
+    }
+
+    private static class SyncMailTask extends AsyncTask<Void, Void, String> {
+        private Context context;
+        private MailRepository repository;
+
+        SyncMailTask(Context context, MailRepository repository) {
+            this.context = context;
+            this.repository = repository;
+        }
+
+        @Override
+        protected String doInBackground(final Void... params) {
+            try {
+                HelperCore helperCore = repository.getMailHelper();
+                if (helperCore == null) return context.getString(R.string.mail_flag_clear);
+                helperCore.listFolderAndMail();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return e.toString();
             }
-        }).execute();
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            boolean hasError = result != null && !result.trim().isEmpty();
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            if (context.getString(R.string.mail_flag_clear).equals(result)) {
+                notificationManager.cancel(NOTIFICATION_ID);
+                return;
+            }
+            notificationManager.notify(NOTIFICATION_ID,
+                new NotificationCompat.Builder(context, context.getString(R.string.app_id))
+                    .setSmallIcon(R.mipmap.mail_icon)
+                    .setContentTitle(context.getString(
+                        hasError ? R.string.mail_title_danger : R.string.mail_title_info
+                    ))
+                    .setContentText(hasError ? result : context.getString(R.string.mail_sync_finish))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build()
+            );
+        }
     }
 
     public void sendMail(final MailModel mailModel) {
         new AsyncTaskWithCallback.AsyncCallback(new AsyncTaskWithCallback.CallbackInterface() {
             @Override
             public void call() {
-                HelperCore helperCore = getMailHelper();
-                if (helperCore == null) return;
                 try {
+                    HelperCore helperCore = getMailHelper();
+                    if (helperCore == null) return;
                     UserDao userDao = mailDatabase.userDao();
                     UserModel activeInbUser = userDao.getActiveInbUser();
                     mailModel.mail_from = activeInbUser.email;

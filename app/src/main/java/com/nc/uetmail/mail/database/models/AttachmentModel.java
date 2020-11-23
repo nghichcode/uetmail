@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey;
 public class AttachmentModel extends BaseTimeModel {
     @PrimaryKey(autoGenerate = true)
     public int id;
+    public int user_id;
+
     public String attachment_id;
     public int message_id;
     public String content_type;
@@ -45,6 +47,7 @@ public class AttachmentModel extends BaseTimeModel {
     public String toString() {
         return "AttachmentModel{" +
             "id=" + id +
+            "user_id=" + user_id +
             ", attachment_id='" + attachment_id + '\'' +
             ", message_id=" + message_id +
             ", content_type='" + content_type + '\'' +

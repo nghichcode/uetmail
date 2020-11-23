@@ -130,6 +130,11 @@ public class GMailHelper implements HelperCore {
 
     @Override
     public void listFolderAndMail() throws Exception {
+        int uid = userModel.id;
+        database.folderDao().deleteByUid(uid);
+        database.mailDao().deleteByUid(uid);
+        database.attachmentDao().deleteByUid(uid);
+
         List<FolderModel.FolderType> types = new ArrayList<FolderModel.FolderType>(
             Arrays.asList(FolderModel.FolderType.values())
         );
@@ -155,8 +160,11 @@ public class GMailHelper implements HelperCore {
                         break;
                     }
                 }
-                System.out.println(folderModel);
+//                System.out.println(folderModel);
                 int folderId = (int) database.folderDao().insert(folderModel);
+                if (FolderModel.FolderType.INBOX.eq(folderModel.type)) {
+                    database.mailMasterDao().setActiveFolder(folderId);
+                }
 
                 if (msgTotal <= 0) continue;
                 ListMessagesResponse messagesResponse = service.users().messages().list(user)
@@ -176,14 +184,14 @@ public class GMailHelper implements HelperCore {
             new Flags(Flags.Flag.SEEN).hashCode() : 0;
 
         HashMap<String, String> hm = arrayToMap(ms.getPayload().getHeaders());
-        SimpleDateFormat fm = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss");
-        Date sent_date;
-        try {
-            if (hm.get("Date") == null) sent_date = new Date();
-            sent_date = fm.parse(hm.get("Date"));
-        } catch (ParseException e) {
-            sent_date = new Date();
-        }
+//        SimpleDateFormat fm = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss");
+        Date sent_date = new Date(ms.getInternalDate());
+//        try {
+//            if (hm.get("Date") == null) sent_date = new Date();
+//            sent_date = fm.parse(hm.get("Date"));
+//        } catch (ParseException e) {
+//            sent_date = new Date();
+//        }
 
         String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
         MailModel mailModel = new MailModel(userModel.id, folderId, hm.get("Content-Type"),
@@ -200,10 +208,11 @@ public class GMailHelper implements HelperCore {
 
         database.mailDao().insert(mailModel);
         for (AttachmentModel attachment : attachments) {
+            attachment.user_id = userModel.id;
             attachment.message_id = mailModel.id;
             database.attachmentDao().insert(attachment);
         }
-        System.out.println(mailModel);
+//        System.out.println(mailModel);
         for (AttachmentModel attachmentModel : attachments)
             System.out.println(attachmentModel);
     }

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">UETMail</string>
+    <string name="app_id">com.nc.uetmail</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -24,7 +25,9 @@
     <string name="mail_add">Add</string>
     <string name="mail_sync">Sync</string>
     <string name="mail_loading">Loading...</string>
+    <string name="mail_flag_clear">clear</string>
     <string name="mail_sync_start">Sync Start</string>
+    <string name="mail_sync_failed">Sync Failed</string>
     <string name="mail_sync_finish">Sync Finish</string>
     <string name="mail_select_user">Select user</string>
     <string name="mail_add_user">Add user</string>
@@ -60,7 +63,7 @@
     <string name="mail_about">About</string>
 
     <string name="mail_compose">Write some thing...</string>
-    <string name="mail_compose_from">From</string>
+    <string name="mail_compose_from" translatable="false">From</string>
     <string name="mail_compose_to">To</string>
     <string name="mail_compose_cc">Cc</string>
     <string name="mail_compose_bcc">Bcc</string>

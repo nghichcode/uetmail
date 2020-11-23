@@ -45,7 +45,7 @@ public interface MailDao {
     @Query("SELECT * FROM mail_table WHERE folder_id=:folderId ORDER BY mail_sent_date DESC")
     List<MailModel> getMailByFolderId(int folderId);
 
-    @Query("SELECT m.* FROM mail_master_table ms JOIN mail_table m ON ms.active_folder_id=m.folder_id ORDER BY mail_sent_date DESC")
+    @Query("SELECT m.* FROM mail_master_table ms JOIN mail_table m ON ms.active_folder_id=m.folder_id ORDER BY m.mail_sent_date DESC")
     LiveData<List<MailModel>> getLiveMailByActiveFolderId();
 
     @Query("SELECT m.* FROM mail_master_table ms JOIN mail_table m ON ms.active_folder_id=m.folder_id")

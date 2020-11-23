@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">UETMail</string>
+    <string name="app_id">com.nc.uetmail</string>
     <string name="navigation_drawer_open">Mở menu điều hướng</string>
     <string name="navigation_drawer_close">Đóng menu điều hướng</string>
     <string name="nav_header_desc">Tiêu đề menu điều hướng</string>
@@ -24,7 +25,9 @@
     <string name="mail_add">Thêm</string>
     <string name="mail_sync">Đồng bộ</string>
     <string name="mail_loading">Vui lòng chờ...</string>
-    <string name="mail_sync_start">Bắt đầu đồng bộ</string>
+    <string name="mail_flag_clear">clear</string>
+    <string name="mail_sync_start">Đang đồng bộ mail</string>
+    <string name="mail_sync_failed">Đồng bộ thất bại</string>
     <string name="mail_sync_finish">Kết thúc đồng bộ</string>
     <string name="mail_select_user">Chọn tài khoản</string>
     <string name="mail_add_user">Thêm tài khoản</string>
@@ -84,7 +87,7 @@
     <string name="mail_title_success">Thành công</string>
     <string name="mail_title_danger">Lỗi</string>
     <string name="mail_title_warning">Cảnh báo</string>
-    <string name="mail_title_info">Thông tin</string>
+    <string name="mail_title_info">Thông báo</string>
 
     <string name="mail_config_email_rq">Email *</string>
     <string name="mail_config_email">Email</string>
