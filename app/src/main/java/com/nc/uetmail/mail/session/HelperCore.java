@@ -8,6 +8,7 @@ public interface HelperCore {
 
     void seenMail(MailModel mailModel) throws Exception;
 
+    // FolderModel folderModel: Folder chua mail, mailModel.folder_id: folder moi cua mail (sent)
     void sendMail(FolderModel folderModel, MailModel mailModel) throws Exception;
 
     void replyMail(FolderModel folderModel, MailModel fromMail, MailModel replyTo, boolean replyAll)

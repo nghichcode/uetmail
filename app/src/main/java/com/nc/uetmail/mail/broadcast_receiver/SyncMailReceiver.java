@@ -16,7 +16,8 @@ public class SyncMailReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (new Date().getTime() - SyncMailReceiver.processDate.getTime() > 300000 && isOnline(context)) {
+        if (isOnline(context)) {
+            System.out.println("uetmail:::ONLINE");
             new MailRepository(context).syncMail();
         }
     }

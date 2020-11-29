@@ -1,6 +1,8 @@
 package com.nc.uetmail.mail.session;
 
-import com.google.api.services.gmail.model.ModifyMessageRequest;
+import android.content.Context;
+
+import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.MailDatabase;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.session.components.MailFolder;
@@ -8,6 +10,7 @@ import com.nc.uetmail.mail.session.components.MailMessage;
 import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.session.components.MailUtils;
+import com.nc.uetmail.mail.utils.MailAndroidUtils;
 import com.sun.mail.imap.IMAPFolder;
 
 import javax.mail.*;
@@ -18,12 +21,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 public class MailHelper implements HelperCore {
+    private Context context;
     private MailDatabase database;
     private MailSession session;
     private Store store;
 
-    public MailHelper(MailDatabase database, MailSession session) throws Exception {
+    public MailHelper(Context context, MailDatabase database, MailSession session) throws Exception {
+        this.context = context;
         this.session = session;
         if (session == null) throw new Exception("Null Session");
         this.database = database;
@@ -82,7 +90,7 @@ public class MailHelper implements HelperCore {
     public void trashMail(FolderModel folderModel, MailModel mailModel, boolean untrash) throws Exception {
         if (mailModel == null || mailModel.mail_uid == null) return;
         MimeMessage email = MailMessage.createMailMessage(session.getSession(), mailModel, null,
-            new HashMap<String, String>(), false);
+            new HashMap<String, String>());
         mailModel.mail_uid = saveMail(folderModel, email);
         database.mailDao().update(mailModel);
     }
@@ -133,7 +141,7 @@ public class MailHelper implements HelperCore {
             hm.put("In-Reply-To", newMessage.getMessageID());
         }
         MimeMessage email = MailMessage.createMailMessage(session.getSession(), newMail,
-            replyMail, hm, replyAll);
+            replyMail, hm);
         if (email == null) throw new Exception("Mail empty.");
         newMail.mail_flags_code = email.getFlags().hashCode();
 
@@ -187,6 +195,21 @@ public class MailHelper implements HelperCore {
 
             for (MailMessage mailMessage : mailFolder.getMessages()) {
                 MailModel mailModel = mailMessage.getMailModel();
+                boolean seen = new Flags(
+                    MailUtils.callPrivateConstructor(Flags.Flag.class, 0, mailModel.mail_flags_code)
+                ).contains(Flags.Flag.SEEN);
+                if (!seen) {
+                    mailModel.nullToEmpty();
+                    NotificationManagerCompat.from(context)
+                        .notify(MailAndroidUtils.NOTIFICATION_ID + mailModel.id,
+                            new NotificationCompat.Builder(context, context.getString(R.string.app_id))
+                                .setSmallIcon(R.mipmap.mail_icon)
+                                .setContentTitle(mailModel.mail_subject)
+                                .setContentText(mailModel.getShortBodyTxt())
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                .build()
+                        );
+                }
                 mailModel.user_id = session.getInbox().id;
                 mailModel.folder_id = folderId;
                 int message_id = (int) database.mailDao().insert(mailModel);

@@ -180,7 +180,9 @@ public class MailMessage {
         Address[] from = MailMessage.toAddresses(ad);
         if (from != null && from.length > 0) {
             for (int i = 0; i < from.length; i++) {
-                s += ((InternetAddress) from[i]).getPersonal();
+                String tmp = ((InternetAddress) from[i]).getPersonal();
+                if (tmp == null) tmp = ((InternetAddress) from[i]).getAddress();
+                s += tmp;
                 if (i + 1 < from.length) s += ", ";
             }
         }
@@ -214,8 +216,7 @@ public class MailMessage {
     }
 
     public static MimeMessage createMailMessage(
-        Session session, MailModel newMail, MailModel replyMail, HashMap<String, String> headers,
-        boolean replyAll
+        Session session, MailModel newMail, MailModel replyMail, HashMap<String, String> headers
     ) throws MessagingException {
         if (session == null || newMail == null || headers == null) return null;
         MimeMessage email = new MimeMessage(session);

@@ -17,6 +17,7 @@ public class MailAndroidUtils {
     public static final String ROOT_URI = "file://";
     public static final String ROOT_FOLDER = Environment.getExternalStorageDirectory()
         + File.separator + "uetmail_data";
+    public static final int NOTIFICATION_ID = 989800;
 
     public static void hideKeyborad(@NonNull Activity activity){
         View view = activity.getCurrentFocus();

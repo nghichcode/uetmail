@@ -37,6 +37,7 @@
     <string name="mail_add_google_pick_fail">No account selected or Permission denied</string>
     <string name="mail_try_again">Try again</string>
     <string name="mail_delete">Delete</string>
+    <string name="mail_search">Search</string>
     <string name="mail_delete_local">Empty all offline data</string>
     <string name="mail_edit">Edit</string>
     <string name="mail_cc_hint">nc@nc.com, nghichcode@nc.com</string>
@@ -104,4 +105,6 @@
     <string name="mail_config_host_hint">imap.nghichcode.com</string>
     <string name="mail_config_host_out_hint">smtp.nghichcode.com</string>
     <string name="mail_config_type_hint">None</string>
+
+    <string name="mail_error_user_none">Not have user account</string>
 </resources>

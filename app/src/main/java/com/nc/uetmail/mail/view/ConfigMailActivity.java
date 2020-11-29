@@ -22,6 +22,7 @@ import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
+import com.nc.uetmail.mail.viewmodel.MailViewModel;
 import com.nc.uetmail.mail.viewmodel.UserViewModel;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class ConfigMailActivity extends AppCompatActivity {
 
     private boolean showAdvanced = true;
     private UserViewModel userViewModel;
+    private MailViewModel mailViewModel;
 
     private UserModel inbModel;
     private UserModel oubModel;
@@ -71,6 +73,7 @@ public class ConfigMailActivity extends AppCompatActivity {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        mailViewModel = ViewModelProviders.of(this).get(MailViewModel.class);
         inbModel = new UserModel();
         oubModel = new UserModel();
 
@@ -246,6 +249,7 @@ public class ConfigMailActivity extends AppCompatActivity {
 
         if (validate(inbModel) && validate(oubModel)) {
             userViewModel.upsertFromRawPass(inbModel, oubModel);
+            mailViewModel.syncMail();
             setResult(RESULT_OK);
             finish();
         }

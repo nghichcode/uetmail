@@ -37,4 +37,7 @@ public interface FolderDao {
     @Query("DELETE FROM mail_folder_table WHERE 1")
     void deleteAll();
 
+    @Query("SELECT * FROM mail_folder_table WHERE 1")
+    List<FolderModel> getAll();
+
 }

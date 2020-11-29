@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mail_search_toolbar_body"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".mail.view.SearchMailActivity">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center|start">
+        <EditText
+            android:id="@+id/mail_search_toolbar_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/mail_search_toolbar_search_btn"
+            android:autofillHints="@string/mail_search"
+            android:drawableRight="@drawable/ic_close"
+            android:drawableTint="@color/colorWarning"
+            android:hint="@string/mail_search"
+            android:inputType="text"
+            android:textColor="@color/colorWhite"
+            android:textColorHint="@color/colorWhiteTransparent" />
+
+        <ImageButton
+            android:id="@+id/mail_search_toolbar_search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/size_6"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@id/mail_search_toolbar_input"
+            android:layout_alignBottom="@id/mail_search_toolbar_input"
+            android:background="@drawable/mail_btn_transparent"
+            android:contentDescription="@string/mail_search"
+            android:src="@drawable/ic_search" />
+    </RelativeLayout>
+</LinearLayout>

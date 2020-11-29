@@ -23,6 +23,7 @@ import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
+import com.nc.uetmail.mail.database.repository.MailRepository;
 import com.nc.uetmail.mail.database.repository.UserRepository;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
 
@@ -45,6 +46,7 @@ public class GoogleSelectAccount extends AppCompatActivity {
 
     private Button btnConfig;
     private UserRepository userRepository;
+    private MailRepository mailRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class GoogleSelectAccount extends AppCompatActivity {
         }
 
         userRepository = new UserRepository(this);
+        mailRepository = new MailRepository(this);
 
         mCredential = GoogleAccountCredential
             .usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES))
@@ -157,6 +160,7 @@ public class GoogleSelectAccount extends AppCompatActivity {
                 , true, false, 0, true
             );
             activity.userRepository.upsertGoogleAccount(inbModel, oubModel);
+            activity.mailRepository.syncMail();
             activity.accountInfoResult(resid);
         }
     }

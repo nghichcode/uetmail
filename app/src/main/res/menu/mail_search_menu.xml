@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/mail_home_menu_btn_sync"
-        android:icon="@drawable/ic_sync"
-        android:iconTint="@color/colorWhite"
-        android:title="@string/mail_sync"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/mail_home_menu_btn_search"
         android:icon="@drawable/ic_search"
         android:iconTint="@color/colorWhite"

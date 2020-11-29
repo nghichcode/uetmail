@@ -1,8 +1,8 @@
 package com.nc.uetmail.mail.view;
 
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +18,30 @@ import android.widget.TextView;
 
 import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.MailModel;
+import com.nc.uetmail.mail.session.components.MailMessage;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
 import com.nc.uetmail.mail.viewmodel.MailViewModel;
 
-import java.util.List;
+import java.io.File;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.util.Date;
+
+import javax.activation.MimeType;
+import javax.activation.MimetypesFileTypeMap;
 
 public class ComposeMailActivity extends AppCompatActivity {
+    public enum ComposeType {
+        SEND, REPLY, REPLY_ALL, FORWARD;
+
+        public boolean eq(String str) {
+            return name().equals(str);
+        }
+    }
+
+    private String currentType = ComposeType.SEND.name();
+    private MailModel fromModel = null;
+
     private boolean isShowAdvance = true;
     private MailViewModel mailViewModel;
 
@@ -61,6 +79,21 @@ public class ComposeMailActivity extends AppCompatActivity {
         tvComposeTxt = findViewById(R.id.mail_compose_txt);
         showAdvance();
         mailViewModel = ViewModelProviders.of(this).get(MailViewModel.class);
+
+        Intent intent = getIntent();
+        if (intent.hasExtra(MessageSlideActivity.EXTRA_COMPOSE_MSID)) {
+            int uid = intent.getIntExtra(MessageSlideActivity.EXTRA_COMPOSE_MSID, 0);
+            if (uid > 0) {
+                mailViewModel.getByMessageId(uid).observe(this, new Observer<MailModel>() {
+                    @Override
+                    public void onChanged(MailModel mailModel) {
+                        setMailData(mailModel);
+                    }
+                });
+            }
+            String cpt = intent.getStringExtra(MessageSlideActivity.EXTRA_COMPOSE_TYPE);
+            if (cpt != null && !"".equals(cpt)) currentType = cpt;
+        }
     }
 
     private void showAdvance() {
@@ -72,6 +105,23 @@ public class ComposeMailActivity extends AppCompatActivity {
         isShowAdvance = !isShowAdvance;
     }
 
+    private void setMailData(MailModel model) {
+        if (model == null) return;
+        fromModel = model;
+        if (ComposeType.REPLY.eq(currentType) || ComposeType.REPLY_ALL.eq(currentType)) {
+            tvComposeTo.setText(MailMessage.toAddressString(model.mail_from));
+            if (ComposeType.REPLY_ALL.eq(currentType)) {
+                tvComposeCC.setText(MailMessage.toAddressString(model.mail_cc));
+            }
+        } else if (ComposeType.FORWARD.eq(currentType)) {
+            tvComposeTo.setText("");
+            tvComposeCC.setText("");
+        }
+        tvComposeBCC.setText("");
+        tvComposeSubject.setText(model.mail_subject);
+        tvComposeTxt.setText(model.mail_content_txt);
+    }
+
     private void sendMail() {
         MailModel model = new MailModel();
         model.mail_to = tvComposeTo.getText().toString();
@@ -79,14 +129,23 @@ public class ComposeMailActivity extends AppCompatActivity {
         model.mail_bcc = tvComposeBCC.getText().toString();
         model.mail_subject = tvComposeSubject.getText().toString();
         model.mail_content_txt = tvComposeTxt.getText().toString();
-        if (model.validate().size()>0) {
+        model.attachments_folder = "";
+        model.content_type = new MimeType().getBaseType();
+        model.mail_sent_date = new Date();
+        model.sync = true;
+        if (model.validateSendMail().size() > 0) {
             new AlertDialog.Builder(this)
                 .setTitle(R.string.mail_title_warning)
                 .setMessage(R.string.mail_input_require_invalid)
                 .show();
             return;
         }
-        mailViewModel.sendMail(model);
+        if (ComposeType.SEND.eq(currentType)) mailViewModel.sendMail(model);
+        else if (ComposeType.REPLY.eq(currentType))
+            mailViewModel.replyMail(model, fromModel, false);
+        else if (ComposeType.REPLY_ALL.eq(currentType))
+            mailViewModel.replyMail(model, fromModel, true);
+        else if (ComposeType.FORWARD.eq(currentType)) mailViewModel.forwardMail(model);
 
         MailAndroidUtils.showCtxToast(this, R.string.mail_sending);
         setResult(RESULT_OK);
@@ -111,4 +170,5 @@ public class ComposeMailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

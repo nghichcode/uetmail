@@ -36,16 +36,40 @@ public class MailViewModel extends AndroidViewModel {
         repository.delete(message);
     }
 
-    public void syncMail() {
-        repository.syncMail();
+    public void archiveMail(final MailModel mailModel, final boolean archive) {
+        repository.archiveMail(mailModel, archive);
     }
 
-    public void sendMail(final MailModel mailModel) {
+    public void syncMail() {
+        syncMail(false);
+    }
+
+    public void syncMail(boolean force) {
+        repository.syncMail(force);
+    }
+
+    public void sendMail(MailModel mailModel) {
         repository.sendMail(mailModel);
+    }
+
+    public void seenMail(final MailModel mailModel) {
+        repository.seenMail(mailModel);
+    }
+
+    public void replyMail(MailModel fromMail, MailModel replyTo, boolean all) {
+        repository.replyMail(fromMail, replyTo, all);
+    }
+
+    public void forwardMail(MailModel forwardTo) {
+        repository.forwardMail(forwardTo);
     }
 
     public LiveData<MailModel> getByMessageId(int msid) {
         return repository.getByMailId(msid);
+    }
+
+    public LiveData<List<MailModel>> searchMessage(String search) {
+        return repository.searchMessage(search);
     }
 
     public LiveData<List<MailModel>> getMessages() {

@@ -32,6 +32,9 @@ public interface MailDao {
     @Query("SELECT * FROM mail_table WHERE id=:msid LIMIT 1")
     LiveData<MailModel> getByMailId(int msid);
 
+    @Query("SELECT * FROM mail_table WHERE mail_subject LIKE :search OR mail_content_txt LIKE :search")
+    LiveData<List<MailModel>> searchMessage(String search);
+
     @Query("SELECT * FROM mail_table")
     LiveData<List<MailModel>> getAll();
 

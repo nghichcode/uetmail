@@ -117,13 +117,29 @@ public class MailModel extends BaseTimeModel {
     @Override
     protected String[] requireFields() {
         return new String[]{
-            "folder_id", "mail_subject", "mail_from", "mail_to", "mail_content_txt", "incoming"
+            "folder_id", "mail_subject", "mail_from", "mail_to", "mail_content_txt"
         };
     }
 
     public HashSet<String> validate() {
         HashSet<String> errors = super.validate();
         if (errors.size() > 0) return errors;
+        if (mail_to != null && !mail_to.isEmpty() && MailMessage.toAddresses(mail_to).length < 1)
+            errors.add("mail_to");
+        if (mail_cc != null && !mail_cc.isEmpty() && MailMessage.toAddresses(mail_cc).length < 1)
+            errors.add("mail_cc");
+        if (mail_bcc != null && !mail_bcc.isEmpty() && MailMessage.toAddresses(mail_bcc).length < 1)
+            errors.add("mail_bcc");
+
+        return errors;
+    }
+
+    public HashSet<String> validateSendMail() {
+        HashSet<String> errors = new HashSet<>();
+        if (mail_subject == null || mail_subject.isEmpty())
+            errors.add("mail_subject");
+        if (mail_content_txt == null || mail_content_txt.isEmpty())
+            errors.add("mail_content_txt");
         if (mail_to != null && !mail_to.isEmpty() && MailMessage.toAddresses(mail_to).length < 1)
             errors.add("mail_to");
         if (mail_cc != null && !mail_cc.isEmpty() && MailMessage.toAddresses(mail_cc).length < 1)

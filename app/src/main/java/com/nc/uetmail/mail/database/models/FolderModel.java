@@ -23,7 +23,7 @@ public class FolderModel extends BaseTimeModel {
         }
 
         public boolean eq(String str) {
-            return name() == str;
+            return name().equals(str);
         }
 
         public boolean matchType(String str) {

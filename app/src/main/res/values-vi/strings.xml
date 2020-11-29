@@ -37,6 +37,7 @@
     <string name="mail_add_google_pick_fail">Không có quyền hoặc chưa chọn tài khoản hợp lệ</string>
     <string name="mail_try_again">Thử lại</string>
     <string name="mail_delete">Xóa</string>
+    <string name="mail_search">Tìm kiếm</string>
     <string name="mail_delete_local">Làm trống dữ liệu offline</string>
     <string name="mail_edit">Sửa</string>
     <string name="mail_cc_hint">nc@nc.com, nghichcode@nc.com</string>
@@ -104,4 +105,6 @@
     <string name="mail_config_host_hint">imap.nghichcode.com</string>
     <string name="mail_config_host_out_hint">smtp.nghichcode.com</string>
     <string name="mail_config_type_hint">None</string>
+
+    <string name="mail_error_user_none">Không có tài khoản email nào</string>
 </resources>

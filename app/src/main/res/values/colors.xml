@@ -8,6 +8,7 @@
     <color name="colorBlack">#000000</color>
     <color name="colorGray">#AAAAAA</color>
     <color name="colorTransparent">#00FFFFFF</color>
+    <color name="colorWhiteTransparent">#88FFFFFF</color>
 
     <color name="colorSuccess">#28A745</color>
     <color name="colorDanger">#DC3545</color>
