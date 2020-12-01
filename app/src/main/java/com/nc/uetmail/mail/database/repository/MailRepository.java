@@ -189,7 +189,7 @@ public class MailRepository {
                 if (!force && activeInbUser.updated_at != null
                     && new Date().getTime() - activeInbUser.updated_at.getTime() > 300000
                 )
-                    return context.getString(R.string.mail_flag_clear);
+                    return context.getString(R.string.mail_flag_clear)   ;
                 HelperCore helperCore = repository.getMailHelper();
                 if (helperCore == null) return context.getString(R.string.mail_flag_clear);
                 helperCore.listFolderAndMail();
