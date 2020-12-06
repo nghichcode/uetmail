@@ -4,9 +4,11 @@ import android.accounts.AccountManager;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +16,7 @@ import android.widget.Button;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.Gmail;
@@ -31,18 +33,27 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class GoogleSelectAccount extends AppCompatActivity {
-    public final int REQUEST_ACCOUNT_PICKER = 1;
+    public static final int REQUEST_ACCOUNT_PICKER = 1;
 
     private String[] SCOPES = {
-        GmailScopes.GMAIL_LABELS,
-        GmailScopes.GMAIL_COMPOSE,
-        GmailScopes.GMAIL_INSERT,
+        GmailScopes.MAIL_GOOGLE_COM,
+        GmailScopes.GMAIL_ADDONS_CURRENT_ACTION_COMPOSE,
+        GmailScopes.GMAIL_ADDONS_CURRENT_MESSAGE_ACTION,
+        GmailScopes.GMAIL_ADDONS_CURRENT_MESSAGE_METADATA,
+        GmailScopes.GMAIL_ADDONS_CURRENT_MESSAGE_READONLY,
+//            GmailScopes.GMAIL_METADATA,
         GmailScopes.GMAIL_MODIFY,
         GmailScopes.GMAIL_READONLY,
-        GmailScopes.MAIL_GOOGLE_COM
+        GmailScopes.GMAIL_COMPOSE,
+        GmailScopes.GMAIL_INSERT,
+        GmailScopes.GMAIL_LABELS,
+        GmailScopes.GMAIL_SEND,
+        GmailScopes.GMAIL_SETTINGS_BASIC,
+        GmailScopes.GMAIL_SETTINGS_SHARING,
     };
 
     private GoogleAccountCredential mCredential;
+    private Gmail service;
 
     private Button btnConfig;
     private UserRepository userRepository;
@@ -101,6 +112,13 @@ public class GoogleSelectAccount extends AppCompatActivity {
                     if (accountName != null) {
                         mCredential.setSelectedAccountName(accountName);
                         toggleLoading(true, null);
+                        service = new Gmail.Builder(
+                            AndroidHttp.newCompatibleTransport(),
+                            JacksonFactory.getDefaultInstance(),
+                            mCredential
+                        )
+                            .setApplicationName(getResources().getString(R.string.app_name))
+                            .build();
                         new AccountInfoAsync(this, accountName).execute();
                         return;
                     }
@@ -132,16 +150,18 @@ public class GoogleSelectAccount extends AppCompatActivity {
         @Override
         protected Integer doInBackground(Void... voids) {
             try {
-                HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
-                Gmail service = new Gmail.Builder(
-                    HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), activity.mCredential
-                )
-                    .setApplicationName(activity.getResources().getString(R.string.app_name))
-                    .build();
-                ListMessagesResponse res = service.users().messages().list(accountName).execute();
+                ListMessagesResponse res = activity.service.users().messages().list(accountName)
+                    .execute();
                 if (res.getMessages().isEmpty()) {
                     return R.string.mail_add_google_pms_fail;
                 } else return null;
+            } catch (UserRecoverableAuthIOException userRecoverableException) {
+                activity.startActivityForResult(
+                    userRecoverableException.getIntent(),
+                    GoogleSelectAccount.REQUEST_ACCOUNT_PICKER
+                );
+                userRecoverableException.printStackTrace();
+                return Integer.valueOf(-1);
             } catch (IOException e) {
                 e.printStackTrace();
                 return R.string.mail_add_google_fail;
@@ -151,6 +171,7 @@ public class GoogleSelectAccount extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer resid) {
             super.onPostExecute(resid);
+            if (resid != null && resid == -1) return;
             UserModel inbModel = new UserModel(
                 MailProtocol.GMAIL.name(), accountName, accountName, "", "", "", 0, ""
                 , true, true, 0, true

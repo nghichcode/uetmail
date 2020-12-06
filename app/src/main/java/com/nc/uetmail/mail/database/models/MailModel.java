@@ -19,6 +19,7 @@ import javax.mail.internet.InternetAddress;
 public class MailModel extends BaseTimeModel {
     public static final int MAX_SHORT_SUBJECT = 32;
     public static final int MAX_SHORT_BODY = 80;
+    public static final int MAX_MD_BODY = 256;
     @PrimaryKey(autoGenerate = true)
     public int id;
     public int user_id;
@@ -96,6 +97,14 @@ public class MailModel extends BaseTimeModel {
         String short_content_txt = mail_content_txt.replaceAll("\n", "");
         int len = short_content_txt.length() < MAX_SHORT_BODY ? short_content_txt.length() :
             MAX_SHORT_BODY;
+        if (len < 1) return "";
+        return short_content_txt.substring(0, len) + "...";
+    }
+
+    public String getMDBodyTxt() {
+        String short_content_txt = mail_content_txt.replaceAll("\n", "");
+        int len = short_content_txt.length() < MAX_MD_BODY ? short_content_txt.length() :
+            MAX_MD_BODY;
         if (len < 1) return "";
         return short_content_txt.substring(0, len) + "...";
     }

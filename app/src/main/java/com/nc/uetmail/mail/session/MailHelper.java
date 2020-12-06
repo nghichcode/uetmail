@@ -205,7 +205,10 @@ public class MailHelper implements HelperCore {
                             new NotificationCompat.Builder(context, context.getString(R.string.app_id))
                                 .setSmallIcon(R.mipmap.mail_icon)
                                 .setContentTitle(mailModel.mail_subject)
-                                .setContentText(mailModel.getShortBodyTxt())
+                                .setStyle(new NotificationCompat.BigTextStyle().bigText(
+                                    mailModel.getMDBodyTxt()
+                                ))
+//                                .setContentText(mailModel.getShortBodyTxt())
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                                 .build()
                         );

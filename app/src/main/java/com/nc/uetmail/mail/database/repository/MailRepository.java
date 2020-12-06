@@ -160,7 +160,8 @@ public class MailRepository {
             new NotificationCompat.Builder(context, appId)
                 .setSmallIcon(R.mipmap.mail_icon)
                 .setContentTitle(context.getString(R.string.mail_title_info))
-                .setContentText(context.getString(R.string.mail_sync_start))
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getString(R.string.mail_sync_start)))
+//                .setContentText(context.getString(R.string.mail_sync_start))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(false)
                 .build()
@@ -183,13 +184,11 @@ public class MailRepository {
         protected String doInBackground(final Void... params) {
             try {
                 UserModel activeInbUser = repository.mailDatabase.userDao().getActiveInbUser();
-                if (activeInbUser == null) throw new Exception(
-                    context.getString(R.string.mail_error_user_none)
-                );
+                if (activeInbUser == null) return context.getString(R.string.mail_flag_clear);
                 if (!force && activeInbUser.updated_at != null
                     && new Date().getTime() - activeInbUser.updated_at.getTime() > 300000
                 )
-                    return context.getString(R.string.mail_flag_clear)   ;
+                    return context.getString(R.string.mail_flag_clear);
                 HelperCore helperCore = repository.getMailHelper();
                 if (helperCore == null) return context.getString(R.string.mail_flag_clear);
                 helperCore.listFolderAndMail();
@@ -214,8 +213,12 @@ public class MailRepository {
                     .setContentTitle(context.getString(
                         hasError ? R.string.mail_title_danger : R.string.mail_title_info
                     ))
-                    .setContentText(hasError ? result :
-                        context.getString(R.string.mail_sync_finish))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(
+                        hasError ? result : context.getString(R.string.mail_sync_finish)
+                    ))
+//                    .setContentText(
+//                        hasError ? result : context.getString(R.string.mail_sync_finish)
+//                    )
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .build()
