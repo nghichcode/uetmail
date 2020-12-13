@@ -14,7 +14,7 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('C:\\Android\\key\\uetmail_kitkat.jks')
+            storeFile file('.\\private\\uetmail_kitkat.jks')
             storePassword 'Kitkat43'
             keyPassword 'Kitkat43'
             keyAlias 'uetmail_kitkat'
