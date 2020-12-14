@@ -1,5 +1,7 @@
 package com.nc.uetmail.mail.session.components;
 
+import android.content.Context;
+
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
@@ -48,12 +50,14 @@ public class MailMessage {
         return this.attachments;
     }
 
-    public MailMessage(IMAPFolder imapFolder, Message message) throws Exception {
+    public MailMessage(IMAPFolder imapFolder, Message message, Context context) throws Exception {
         this.message = message;
 
-        String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
+//        String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
+        String mail_uid = imapFolder.getUID(message) + "";
+        String attachFolder = MailAndroidUtils.getRootFolder(context) + File.separator + "m"  + File.separator + mail_uid;
         mailModel = new MailModel(
-            -1, -1, message.getContentType(), imapFolder.getUID(message) + "",
+            -1, -1, message.getContentType(), mail_uid,
             message.getSubject(), getAddressString(message, null),
             getAddressString(message, RecipientType.TO),
             getAddressString(message, RecipientType.CC),

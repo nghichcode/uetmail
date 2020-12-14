@@ -1,6 +1,8 @@
 package com.nc.uetmail.mail.view;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -51,6 +53,7 @@ import com.nc.uetmail.mail.broadcast_receiver.SyncMailReceiver;
 import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.database.models.UserModel;
+import com.nc.uetmail.mail.utils.MailAndroidUtils;
 import com.nc.uetmail.mail.utils.touch_helper.HomeTouchCallback;
 import com.nc.uetmail.mail.utils.touch_helper.HomeTouchCallback.SwipeInterface;
 import com.nc.uetmail.mail.viewmodel.FolderViewModel;

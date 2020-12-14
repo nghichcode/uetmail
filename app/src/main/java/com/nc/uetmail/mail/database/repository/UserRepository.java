@@ -72,7 +72,7 @@ public class UserRepository {
         new AsyncCallback(new CallbackInterface() {
             @Override
             public void call() {
-                if (userDao.getUserByEmail(inbModel.email) == null) {
+                if (userDao.getUserByEmailAndType(inbModel.email, inbModel.type) == null) {
                     inbModel.id = oubModel.id = 0;
                     int uid = (int) userDao.insert(inbModel);
                     oubModel.target_id = uid;
@@ -89,7 +89,7 @@ public class UserRepository {
         new AsyncCallback(new CallbackInterface() {
             @Override
             public void call() {
-                if (inbModel.id <= 0 && userDao.getUserByEmail(inbModel.email) != null) return;
+                if (inbModel.id <= 0 && userDao.getUserByEmailAndType(inbModel.email, inbModel.type) != null) return;
 
                 String message_digest = MasterRepository
                     .getOrCreateMasterModel(masterDao).message_digest;

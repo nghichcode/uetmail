@@ -1,5 +1,7 @@
 package com.nc.uetmail.mail.session.components;
 
+import android.content.Context;
+
 import com.nc.uetmail.mail.database.models.FolderModel;
 import com.nc.uetmail.mail.database.models.FolderModel.FolderType;
 import com.sun.mail.imap.IMAPFolder;
@@ -33,14 +35,14 @@ public class MailFolder {
         return childrenFolders;
     }
 
-    public ArrayList<MailMessage> getMessages() throws Exception {
+    public ArrayList<MailMessage> getMessages(Context context) throws Exception {
         if (messages == null) {
             messages = new ArrayList<>();
             if (isRoot) return messages;
             folder.open(Folder.READ_ONLY);
             Message[] folderMessages = folder.getMessages();
             for (int i = 0; i < folderMessages.length; i++) {
-                this.messages.add(new MailMessage((IMAPFolder) folder, folderMessages[i]));
+                this.messages.add(new MailMessage((IMAPFolder) folder, folderMessages[i], context));
             }
             folder.close();
         }

@@ -215,7 +215,8 @@ public class GMailHelper implements HelperCore {
 //            sent_date = new Date();
 //        }
 
-        String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
+//        String attachFolder = MailAndroidUtils.ROOT_FOLDER + File.separator + new Date().getTime();
+        String attachFolder = MailAndroidUtils.getRootFolder(context) + File.separator + "g" + File.separator + message.getId();
         MailModel mailModel = new MailModel(userModel.id, folderId, hm.get("Content-Type"),
             message.getId(), hm.get("Subject"), hm.get("From"), hm.get("To"), hm.get("Cc"),
             hm.get("Bcc"), "", "", false,
@@ -239,10 +240,10 @@ public class GMailHelper implements HelperCore {
                     new NotificationCompat.Builder(context, context.getString(R.string.app_id))
                         .setSmallIcon(R.mipmap.mail_icon)
                         .setContentTitle(mailModel.mail_subject)
+                        .setContentText(mailModel.getShortBodyTxt())
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(
                             mailModel.getMDBodyTxt()
                         ))
-//                        .setContentText(mailModel.getShortBodyTxt())
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setContentIntent(resultIntent)
                         .build()

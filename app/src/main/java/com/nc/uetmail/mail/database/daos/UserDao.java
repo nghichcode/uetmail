@@ -31,6 +31,9 @@ public interface UserDao {
     @Query("SELECT * FROM mail_user_table WHERE email=:email LIMIT 1")
     UserModel getUserByEmail(String email);
 
+    @Query("SELECT * FROM mail_user_table WHERE email=:email AND type=:connectionType LIMIT 1")
+    UserModel getUserByEmailAndType(String email, String connectionType);
+
     @Query("SELECT * FROM mail_user_table WHERE id=:id or target_id=:id ORDER BY id LIMIT 2")
     List<UserModel> getUsersByIdOrTargetId(int id);
 

@@ -180,9 +180,11 @@ public class GoogleSelectAccount extends AppCompatActivity {
                 MailProtocol.GMAIL.name(), accountName, accountName, "", "", "", 0, ""
                 , true, false, 0, true
             );
-            activity.userRepository.upsertGoogleAccount(inbModel, oubModel);
-            activity.mailRepository.syncMail();
-            activity.accountInfoResult(resid);
+            if (resid == null) {
+                activity.userRepository.upsertGoogleAccount(inbModel, oubModel);
+                activity.mailRepository.syncMail();
+                activity.accountInfoResult(resid);
+            }
         }
     }
 

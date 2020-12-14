@@ -160,8 +160,8 @@ public class MailRepository {
             new NotificationCompat.Builder(context, appId)
                 .setSmallIcon(R.mipmap.mail_icon)
                 .setContentTitle(context.getString(R.string.mail_title_info))
+                .setContentText(context.getString(R.string.mail_sync_start))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getString(R.string.mail_sync_start)))
-//                .setContentText(context.getString(R.string.mail_sync_start))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(false)
                 .build()
@@ -213,12 +213,12 @@ public class MailRepository {
                     .setContentTitle(context.getString(
                         hasError ? R.string.mail_title_danger : R.string.mail_title_info
                     ))
+                    .setContentText(
+                        hasError ? result : context.getString(R.string.mail_sync_finish)
+                    )
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(
                         hasError ? result : context.getString(R.string.mail_sync_finish)
                     ))
-//                    .setContentText(
-//                        hasError ? result : context.getString(R.string.mail_sync_finish)
-//                    )
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .build()
