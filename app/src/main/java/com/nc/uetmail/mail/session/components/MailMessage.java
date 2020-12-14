@@ -110,7 +110,8 @@ public class MailMessage {
                 new File(filePath).getCanonicalPath();
             } catch (IOException e) {
                 System.err.println(e.toString());
-                fileName = fileName.replaceAll("[:\\\\/*?|<>]", "_");
+//                fileName = fileName.replaceAll("[:\\\\/*?|<>]", "_");
+                fileName = new Date().getTime() + "";
                 filePath = path + File.separator + fileName;
             }
 
