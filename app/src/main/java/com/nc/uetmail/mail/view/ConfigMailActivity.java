@@ -22,6 +22,7 @@ import com.nc.uetmail.R;
 import com.nc.uetmail.mail.database.models.UserModel;
 import com.nc.uetmail.mail.database.models.UserModel.ConnectionType;
 import com.nc.uetmail.mail.database.models.UserModel.MailProtocol;
+import com.nc.uetmail.mail.session.UETMailConfig;
 import com.nc.uetmail.mail.viewmodel.MailViewModel;
 import com.nc.uetmail.mail.viewmodel.UserViewModel;
 
@@ -117,6 +118,7 @@ public class ConfigMailActivity extends AppCompatActivity {
         });
         edInPort.setText("" + UserModel.getDefaultPort(MailProtocol.IMAP.name(), inbModel.type));
         edOuPort.setText("" + UserModel.getDefaultPort(MailProtocol.SMTP.name(), oubModel.type));
+        setDefaultConfig();
 
         Intent intent = getIntent();
         if (intent.hasExtra(HomeActivity.EXTRA_CONFIG_UID)) {
@@ -174,6 +176,17 @@ public class ConfigMailActivity extends AppCompatActivity {
             }
         });
         popup.show();
+    }
+
+    public void setDefaultConfig() {
+        UserModel inb = UETMailConfig.inbox;
+        UserModel oub = UETMailConfig.outbox;
+        edInHost.setText("" + inb.hostname);
+        edInType.setText("" + inb.type);
+        edInPort.setText("" + inb.port);
+        edOuHost.setText("" + oub.hostname);
+        edOuType.setText("" + oub.type);
+        edOuPort.setText("" + oub.port);
     }
 
     public void setViewFromModel(UserModel inb, UserModel oub) {
