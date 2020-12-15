@@ -193,38 +193,13 @@ public class MailHelper implements HelperCore {
                 database.mailMasterDao().setActiveFolder(folderId);
             }
 
-            for (MailMessage mailMessage : mailFolder.getMessages(context)) {
-                MailModel mailModel = mailMessage.getMailModel();
-                boolean seen = new Flags(
-                    MailUtils.callPrivateConstructor(Flags.Flag.class, 0, mailModel.mail_flags_code)
-                ).contains(Flags.Flag.SEEN);
-                if (!seen) {
-                    mailModel.nullToEmpty();
-                    NotificationManagerCompat.from(context)
-                        .notify(MailAndroidUtils.NOTIFICATION_ID + mailModel.id,
-                            new NotificationCompat.Builder(context, context.getString(R.string.app_id))
-                                .setSmallIcon(R.mipmap.mail_icon)
-                                .setContentTitle(mailModel.mail_subject)
-                                .setContentText(mailModel.getShortBodyTxt())
-                                .setStyle(new NotificationCompat.BigTextStyle().bigText(
-                                    mailModel.getMDBodyTxt()
-                                ))
-                                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                .build()
-                        );
-                }
-                mailModel.user_id = session.getInbox().id;
-                mailModel.folder_id = folderId;
-                int message_id = (int) database.mailDao().insert(mailModel);
-                for (AttachmentModel attachmentModel : mailMessage.getAttachments()) {
-                    attachmentModel.user_id = session.getInbox().id;
-                    attachmentModel.message_id = message_id;
-                    database.attachmentDao().insert(attachmentModel);
-                }
+            mailFolder.getMessages(context, folderId, session.getInbox().id, database);
+//            for (MailMessage mailMessage : mailFolder.getMessages(context)) {
+//                MailModel mailModel = mailMessage.getMailModel();
 //                System.out.println(mailModel);
 //                for (AttachmentModel attachmentModel : mailMessage.getAttachments())
 //                    System.out.println(attachmentModel);
-            }
+//            }
         }
 
         ArrayList<MailFolder> childrenFolders = mailFolder.getChildrenFolders();

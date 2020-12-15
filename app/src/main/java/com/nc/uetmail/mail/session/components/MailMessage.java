@@ -2,6 +2,8 @@ package com.nc.uetmail.mail.session.components;
 
 import android.content.Context;
 
+import com.google.api.client.util.Base64;
+import com.google.common.io.BaseEncoding;
 import com.nc.uetmail.mail.database.models.AttachmentModel;
 import com.nc.uetmail.mail.database.models.MailModel;
 import com.nc.uetmail.mail.utils.MailAndroidUtils;
@@ -35,6 +37,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MailMessage {
     private Message message;
@@ -99,9 +103,20 @@ public class MailMessage {
             if (!(o instanceof BASE64DecoderStream || o instanceof InputStream)) return;
             String fileName = p.getFileName();
             if (fileName == null || fileName.isEmpty()) return;
-            BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
-            if (null != bs && null != bs.subtype && !fileName.contains("."))
-                fileName += "." + bs.subtype.toLowerCase();
+            Pattern pattern = Pattern.compile("=\\?{1}(.+)\\?{1}([B|Q])\\?{1}(.+)\\?{1}=");
+            Matcher matcher = pattern.matcher(fileName);
+            if (matcher.find() && matcher.groupCount()==3) {
+                try {
+                    byte[] fileNameBytes = Base64.decodeBase64(matcher.group(3));
+                    fileName = new String(fileNameBytes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+//            BODYSTRUCTURE bs = MailUtils.getPrivateAttr(p, "bs", BODYSTRUCTURE.class);
+//            if (null != bs && null != bs.subtype && !fileName.contains("."))
+//                fileName += "." + bs.subtype.toLowerCase();
             String path = mailModel.attachments_folder;
             if (!new File(path).isDirectory()) new File(path).mkdirs();
             if (!new File(path).exists()) throw new IOException("Can not make dir.");
@@ -109,7 +124,7 @@ public class MailMessage {
             try {
                 new File(filePath).getCanonicalPath();
             } catch (IOException e) {
-                System.err.println(e.toString());
+                e.printStackTrace();
 //                fileName = fileName.replaceAll("[:\\\\/*?|<>]", "_");
                 fileName = new Date().getTime() + "";
                 filePath = path + File.separator + fileName;
