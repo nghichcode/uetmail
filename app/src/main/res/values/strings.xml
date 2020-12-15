@@ -107,4 +107,5 @@
     <string name="mail_config_type_hint">None</string>
 
     <string name="mail_error_user_none">Not have user account</string>
+    <string name="mail_unread_count">unread/total</string>
 </resources>

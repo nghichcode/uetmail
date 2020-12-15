@@ -53,7 +53,10 @@ public class FolderRecyclerAdapter extends RecyclerView.Adapter<FolderRecyclerAd
         String fullName = folder.fullName.replaceAll("\\.", "/");
         noteHolder.tvFolderName.setText(fullName);
         noteHolder.tvFolderCount.setText(
-            folder.unread_count + "/" + folder.message_count + " (unread/total)"
+            folder.unread_count + "/" + folder.message_count +
+                " (" +
+                noteHolder.itemView.getContext().getString(R.string.mail_unread_count) +
+                ")"
         );
     }
 
